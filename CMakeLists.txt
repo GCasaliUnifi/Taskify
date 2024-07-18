@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(wxWidgets REQUIRED COMPONENTS core base)
 include(${wxWidgets_USE_FILE})
 
-add_executable(Taskify main.cpp)
+add_executable(Taskify main.cpp
+        MainFrame.h
+        MainFrame.cpp)
 
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})

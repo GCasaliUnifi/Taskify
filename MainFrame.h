@@ -1,0 +1,19 @@
+//
+// Created by giacomo on 18/07/24.
+//
+
+#ifndef MAINFRAME_H
+#define MAINFRAME_H
+
+#include <wx/frame.h>
+#include <wx/sizer.h>
+#include <wx/panel.h>
+
+class MainFrame : public wxFrame {
+public:
+    MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
+};
+
+
+
+#endif //MAINFRAME_H

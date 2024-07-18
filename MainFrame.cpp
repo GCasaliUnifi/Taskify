@@ -1,0 +1,24 @@
+//
+// Created by giacomo on 18/07/24.
+//
+
+#include "MainFrame.h"
+
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) :
+    wxFrame(nullptr, wxID_ANY, title, pos, size)
+{
+    auto * verticalSizer = new wxBoxSizer(wxVERTICAL);
+    auto * horizontalSizer =  new wxBoxSizer(wxHORIZONTAL);
+
+    auto * leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
+    leftPanel->SetBackgroundColour(wxColour(100, 200, 100));
+
+    auto * rightPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
+    rightPanel->SetBackgroundColour(wxColour(100, 100, 200));
+    horizontalSizer->Add(leftPanel, 2, wxEXPAND | wxRIGHT, 10);
+    horizontalSizer->Add(rightPanel, 1, wxEXPAND, 0);
+
+    verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
+    this->SetSizerAndFit(verticalSizer);
+
+}
