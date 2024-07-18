@@ -22,12 +22,19 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     this->SetMenuBar(topMenuBar);
 
-    auto * leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
+    auto * leftSizer = new wxBoxSizer(wxVERTICAL);
+    auto * leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
     leftPanel->SetBackgroundColour(wxColour(100, 200, 100));
+    auto * testTask = new TaskPanel(this, wxT("titolo"), wxT("Descrizione"));
+
+    leftSizer->Add(leftPanel, 0, wxEXPAND);
+    leftSizer->Add(testTask, 0, wxEXPAND);
 
     auto * rightPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
     rightPanel->SetBackgroundColour(wxColour(100, 100, 200));
-    horizontalSizer->Add(leftPanel, 2, wxEXPAND | wxRIGHT, 10);
+
+
+    horizontalSizer->Add(leftSizer, 2, wxEXPAND | wxRIGHT, 10);
     horizontalSizer->Add(rightPanel, 1, wxEXPAND, 0);
 
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);

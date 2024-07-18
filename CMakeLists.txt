@@ -8,6 +8,8 @@ include(${wxWidgets_USE_FILE})
 
 add_executable(Taskify main.cpp
         MainFrame.h
-        MainFrame.cpp)
+        MainFrame.cpp
+        TaskPanel.cpp
+        TaskPanel.h)
 
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
