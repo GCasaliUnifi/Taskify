@@ -8,6 +8,7 @@
 #include <wx/frame.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
+#include <wx/menu.h>
 
 class MainFrame : public wxFrame {
 public:

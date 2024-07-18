@@ -10,6 +10,18 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * verticalSizer = new wxBoxSizer(wxVERTICAL);
     auto * horizontalSizer =  new wxBoxSizer(wxHORIZONTAL);
 
+    auto * topMenuBar = new wxMenuBar();
+
+    auto * fileMenu = new wxMenu();
+    fileMenu->Append(wxID_EXIT, wxT("Exit"));
+    topMenuBar->Append(fileMenu, wxT("File"));
+
+    auto * helpMenu = new wxMenu();
+    helpMenu->Append(wxID_ABOUT, wxT("About"));
+    topMenuBar->Append(helpMenu, wxT("Help"));
+
+    this->SetMenuBar(topMenuBar);
+
     auto * leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
     leftPanel->SetBackgroundColour(wxColour(100, 200, 100));
 
