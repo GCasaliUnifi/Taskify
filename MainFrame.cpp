@@ -25,19 +25,28 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * leftSizer = new wxBoxSizer(wxVERTICAL);
     auto * leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
     leftPanel->SetBackgroundColour(wxColour(100, 200, 100));
-    auto * testTask = new TaskPanel(this, wxT("titolo"), wxT("Descrizione"));
+
+    for(int i = 0; i < 8; ++i) {
+        auto * testTask = new TaskPanel(this, wxT("titolo"), wxT("Descrizione"));
+        this->unDoneTasks.push_back(testTask);
+    }
 
     leftSizer->Add(leftPanel, 0, wxEXPAND);
-    leftSizer->Add(testTask, 0, wxEXPAND);
+
+    for (const auto i: unDoneTasks) {
+        leftSizer->Add(i, 0, wxEXPAND);
+    }
+
+    for (const auto i: doneTasks) {
+        leftSizer->Add(i, 0, wxEXPAND);
+    }
 
     auto * rightPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
     rightPanel->SetBackgroundColour(wxColour(100, 100, 200));
-
 
     horizontalSizer->Add(leftSizer, 2, wxEXPAND | wxRIGHT, 10);
     horizontalSizer->Add(rightPanel, 1, wxEXPAND, 0);
 
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
     this->SetSizerAndFit(verticalSizer);
-
 }

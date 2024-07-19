@@ -15,8 +15,11 @@
 class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
-};
 
+private:
+    std::vector<TaskPanel *> doneTasks;
+    std::vector<TaskPanel *> unDoneTasks;
+};
 
 
 #endif //MAINFRAME_H

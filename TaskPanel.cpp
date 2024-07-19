@@ -9,12 +9,15 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
 {
     this->checkBox = new wxCheckBox(this, wxID_ANY, "");
     auto * taskButton = new wxButton(this, wxID_ANY, title);
+    auto * deleteButton = new wxButton(this, wxID_ANY, wxT("D"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    deleteButton->Fit();
     this->taskDescription = description;
 
     this->SetBackgroundColour(wxColour(200, 100, 100));
 
     auto * sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(checkBox, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-    sizer->Add(taskButton, 0, wxALL, 5);
+    sizer->Add(taskButton, 1, wxEXPAND | wxALL, 5);
+    sizer->Add(deleteButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     this->SetSizer(sizer);
 }
