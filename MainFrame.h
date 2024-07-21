@@ -9,6 +9,7 @@
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/menu.h>
+#include <wx/scrolwin.h>
 
 #include "TaskPanel.h"
 
