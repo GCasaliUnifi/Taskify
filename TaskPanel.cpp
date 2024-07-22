@@ -5,15 +5,13 @@
 #include "TaskPanel.h"
 
 TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id, const wxPoint &pos, const wxSize &size)
-    : wxPanel(parent, id, pos, size)
+    : wxPanel(parent, id, pos, size, wxBORDER_SUNKEN)
 {
     this->checkBox = new wxCheckBox(this, wxID_ANY, "");
-    auto * taskButton = new wxButton(this, wxID_ANY, title);
-    auto * deleteButton = new wxButton(this, wxID_ANY, wxT("D"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    auto * taskButton = new wxButton(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+    auto * deleteButton = new wxButton(this, wxID_ANY, wxString::FromUTF8("🗑"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
     deleteButton->Fit();
     this->taskDescription = description;
-
-    this->SetBackgroundColour(wxColour(200, 100, 100));
 
     auto * sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(checkBox, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);

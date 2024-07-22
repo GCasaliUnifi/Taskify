@@ -23,6 +23,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->SetMenuBar(topMenuBar);
 
     auto * leftSizer = new wxBoxSizer(wxVERTICAL);
+    auto * tasksSizer = new wxBoxSizer(wxVERTICAL);
 
     auto * scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL);
 
@@ -32,18 +33,24 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     }
 
     for (const auto i: unDoneTasks) {
-        leftSizer->Add(i, 0, wxEXPAND | wxALL, 5);
+        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
     }
 
     for (const auto i: doneTasks) {
-        leftSizer->Add(i, 0, wxEXPAND | wxALL, 5);
+        tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
     }
 
-    scrolledWindow->SetSizer(leftSizer);
-    leftSizer->FitInside(scrolledWindow);
+    scrolledWindow->SetSizer(tasksSizer);
+    tasksSizer->FitInside(scrolledWindow);
     scrolledWindow->SetScrollRate(2, 10);
 
+    auto addTaskButton = new wxButton(this, wxID_ANY, wxString::FromUTF8("➕"));
+
+    leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
+    leftSizer->Add(addTaskButton, 0, wxALL | wxALIGN_CENTER, 5);
+
     auto * rightSizer = new wxBoxSizer(wxVERTICAL);
+    // TODO fai in modo che il testo "placeholder" sia significativo e magari in grigietto.
     auto * titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
     auto * titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
 
@@ -56,9 +63,10 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     rightSizer->Add(titleSizer, 0, wxEXPAND | wxBOTTOM, 5);
     rightSizer->Add(descriptionSizer, 1, wxEXPAND, 5);
 
-    horizontalSizer->Add(scrolledWindow, 2, wxEXPAND | wxRIGHT, 10);
+    horizontalSizer->Add(leftSizer, 2, wxEXPAND | wxRIGHT, 10);
     horizontalSizer->Add(rightSizer, 1, wxEXPAND, 0);
 
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
     this->SetSizerAndFit(verticalSizer);
+    this->SetMinSize(wxSize(600, 400));
 }

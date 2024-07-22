@@ -13,3 +13,4 @@ add_executable(Taskify main.cpp
         TaskPanel.h)
 
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
+add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)
