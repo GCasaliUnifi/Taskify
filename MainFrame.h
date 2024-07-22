@@ -10,6 +10,7 @@
 #include <wx/panel.h>
 #include <wx/menu.h>
 #include <wx/scrolwin.h>
+#include <wx/textctrl.h>
 
 #include "TaskPanel.h"
 

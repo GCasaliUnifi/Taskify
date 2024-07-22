@@ -26,7 +26,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     auto * scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL);
 
-    for(int i = 0; i < 16; ++i) {
+    for(int i = 0; i < 10; ++i) {
         auto * testTask = new TaskPanel(scrolledWindow, wxT("titolo"), wxT("Descrizione"));
         this->unDoneTasks.push_back(testTask);
     }
@@ -43,11 +43,21 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     leftSizer->FitInside(scrolledWindow);
     scrolledWindow->SetScrollRate(2, 10);
 
-    auto * rightPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 100));
-    rightPanel->SetBackgroundColour(wxColour(100, 100, 200));
+    auto * rightSizer = new wxBoxSizer(wxVERTICAL);
+    auto * titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
+    auto * titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+
+    auto * descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
+    auto * descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY | wxTE_MULTILINE);
+
+    titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
+    descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
+
+    rightSizer->Add(titleSizer, 0, wxEXPAND | wxBOTTOM, 5);
+    rightSizer->Add(descriptionSizer, 1, wxEXPAND, 5);
 
     horizontalSizer->Add(scrolledWindow, 2, wxEXPAND | wxRIGHT, 10);
-    horizontalSizer->Add(rightPanel, 1, wxEXPAND, 0);
+    horizontalSizer->Add(rightSizer, 1, wxEXPAND, 0);
 
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
     this->SetSizerAndFit(verticalSizer);
