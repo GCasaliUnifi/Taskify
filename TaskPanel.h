@@ -17,9 +17,11 @@ public:
     TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition,
               const wxSize &size = wxDefaultSize);
 
-    bool isCheked();
+    bool isChecked();
 
 private:
+    void OnTaskCheck(wxCommandEvent& event);
+
     wxString taskTitle;
     wxString taskDescription;
     wxCheckBox * checkBox;

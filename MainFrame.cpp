@@ -25,10 +25,11 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * leftSizer = new wxBoxSizer(wxVERTICAL);
     auto * tasksSizer = new wxBoxSizer(wxVERTICAL);
 
-    auto * scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL);
+    this->Bind(wxEVT_CHECKBOX, &MainFrame::OnTaskCheck, this);
 
+    scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
     for(int i = 0; i < 10; ++i) {
-        auto * testTask = new TaskPanel(scrolledWindow, wxT("titolo"), wxT("Descrizione"));
+        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s %d", wxT("Titolo"), i+1), wxT("Descrizione"));
         this->unDoneTasks.push_back(testTask);
     }
 
@@ -69,4 +70,34 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
     this->SetSizerAndFit(verticalSizer);
     this->SetMinSize(wxSize(600, 400));
+}
+
+void MainFrame::OnTaskCheck(wxCommandEvent &event) {
+    wxObject* obj = event.GetEventObject();
+
+    if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+        if(callerTask->isChecked()) {
+            auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
+            if(it != unDoneTasks.end()) {
+                auto sizer = scrolledWindow->GetSizer();
+                sizer->Detach(callerTask);
+                sizer->Add(callerTask, 0, wxEXPAND | wxALL, 5);
+                scrolledWindow->Layout();
+
+                unDoneTasks.erase(it);
+                doneTasks.push_back(callerTask);
+            }
+        } else {
+            auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
+            if(it != doneTasks.end()) {
+                auto sizer = scrolledWindow->GetSizer();
+                sizer->Detach(callerTask);
+                sizer->Insert(0, callerTask, 0, wxEXPAND | wxALL, 5);
+                scrolledWindow->Layout();
+
+                doneTasks.erase(it);
+                unDoneTasks.insert(unDoneTasks.begin(), callerTask);
+            }
+        }
+    }
 }
