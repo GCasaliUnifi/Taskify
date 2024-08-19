@@ -18,11 +18,15 @@
 class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
-    void OnTaskCheck(wxCommandEvent& event);
-    void OnPaint(wxPaintEvent& event);
 
 private:
+    void OnTaskCheck(wxCommandEvent& event);
+    void OnTaskButtonClick(wxCommandEvent& event);
+
     wxScrolledWindow* scrolledWindow;
+    wxTextCtrl* titleBox;
+    wxTextCtrl* descriptionBox;
+
     std::vector<TaskPanel *> doneTasks;
     std::vector<TaskPanel *> unDoneTasks;
 };

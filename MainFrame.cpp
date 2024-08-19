@@ -25,11 +25,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * leftSizer = new wxBoxSizer(wxVERTICAL);
     auto * tasksSizer = new wxBoxSizer(wxVERTICAL);
 
-    this->Bind(wxEVT_CHECKBOX, &MainFrame::OnTaskCheck, this);
-
     scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
     for(int i = 0; i < 10; ++i) {
-        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s %d", wxT("Titolo"), i+1), wxT("Descrizione"));
+        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s %d", wxT("Titolo"), i+1), wxString::Format("%s %d", wxT("Descrizione"), i+1));
         this->unDoneTasks.push_back(testTask);
     }
 
@@ -53,10 +51,10 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * rightSizer = new wxBoxSizer(wxVERTICAL);
     // TODO fai in modo che il testo "placeholder" sia significativo e magari in grigietto.
     auto * titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
-    auto * titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
 
     auto * descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
-    auto * descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY | wxTE_MULTILINE);
+    descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY | wxTE_MULTILINE);
 
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
     descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
@@ -70,6 +68,9 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL, 10);
     this->SetSizerAndFit(verticalSizer);
     this->SetMinSize(wxSize(600, 400));
+
+    this->Bind(wxEVT_CHECKBOX, &MainFrame::OnTaskCheck, this);
+    this->Bind(wxEVT_BUTTON, &MainFrame::OnTaskButtonClick, this);
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
@@ -98,6 +99,27 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
                 doneTasks.erase(it);
                 unDoneTasks.insert(unDoneTasks.begin(), callerTask);
             }
+        }
+    }
+}
+
+void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
+    wxObject* obj = event.GetEventObject();
+    if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+        switch (event.GetId()) {
+            case TASK_BUTTON: {
+                this->titleBox->SetValue(callerTask->getTaskTitle());
+                this->descriptionBox->SetValue(callerTask->getTaskDescription());
+                break;
+            }
+
+            case DELETE_BUTTON: {
+                wxLogMessage("Premuto delete");
+                break;
+            }
+
+            default:
+                break;
         }
     }
 }

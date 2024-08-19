@@ -12,6 +12,11 @@
 
 #include "TaskPanel.h"
 
+enum BUTTON_IDs {
+    TASK_BUTTON = wxID_HIGHEST + 1,
+    DELETE_BUTTON
+};
+
 class TaskPanel : public wxPanel {
 public:
     TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition,
@@ -19,8 +24,16 @@ public:
 
     bool isChecked();
 
+    [[nodiscard]] wxString getTaskTitle() const {
+        return taskTitle;
+    }
+
+    [[nodiscard]] wxString getTaskDescription() const {
+        return taskDescription;
+    }
+
 private:
-    void OnTaskCheck(wxCommandEvent& event);
+    void OnTaskEvent(wxCommandEvent& event);
 
     wxString taskTitle;
     wxString taskDescription;
