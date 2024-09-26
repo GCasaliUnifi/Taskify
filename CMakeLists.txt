@@ -3,7 +3,7 @@ project(Taskify)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(wxWidgets REQUIRED COMPONENTS core base)
+find_package(wxWidgets REQUIRED COMPONENTS core base xml)
 include(${wxWidgets_USE_FILE})
 
 add_executable(Taskify main.cpp
@@ -11,7 +11,7 @@ add_executable(Taskify main.cpp
         MainFrame.cpp
         TaskPanel.cpp
         TaskPanel.h
-        ParserJSON.h)
+        XMLParser.h)
 
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)

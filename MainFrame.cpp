@@ -13,7 +13,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto * topMenuBar = new wxMenuBar();
 
     auto * fileMenu = new wxMenu();
-    fileMenu->Append(wxID_EXIT, wxT("Exit"));
+    fileMenu->Append(OPEN_FILE_MENU, wxT("&Open file\tCtrl-O"));
+    fileMenu->Append(wxID_EXIT, wxT("&Exit\tEsc"));
     topMenuBar->Append(fileMenu, wxT("File"));
 
     auto * helpMenu = new wxMenu();
@@ -71,6 +72,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     this->Bind(wxEVT_CHECKBOX, &MainFrame::OnTaskCheck, this);
     this->Bind(wxEVT_BUTTON, &MainFrame::OnTaskButtonClick, this);
+    this->Bind(wxEVT_MENU, &MainFrame::OnMenuItemClick, this);
+
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
@@ -121,5 +124,30 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             default:
                 break;
         }
+    }
+}
+
+void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
+    switch (event.GetId()) {
+        case wxID_EXIT: {
+            std::cout << "Premuto exit" << std::endl;
+            break;
+        }
+
+        case wxID_ABOUT: {
+            std::cout << "Premuto About" << std::endl;
+            break;
+        }
+
+        case OPEN_FILE_MENU: {
+            std::cout << "Premuto Open" << std::endl;
+            this->xmlParser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/test.xml");
+            this->xmlParser.parseXML();
+
+            break;
+        }
+
+        default:
+            break;
     }
 }
