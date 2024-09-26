@@ -33,21 +33,29 @@ public:
         auto child = tasksFile.GetRoot()->GetChildren();
         while(child) {
             if(child->GetName() == "task") {
+                std::pair<std::string, std::string> tmpTask;
                 auto inside = child->GetChildren();
                 while(inside) {
                     if(inside->GetName() == "title") {
                         std::cout << inside->GetNodeContent() << std::endl;
+                        tmpTask.first = inside->GetNodeContent().mb_str();
                     } else if(inside->GetName() == "desc") {
                         std::cout << inside->GetNodeContent() << std::endl;
+                        tmpTask.second = inside->GetNodeContent().mb_str();
                     }
                     inside = inside->GetNext();
                 }
+                this->taskList.push_back(tmpTask);
                 delete inside;
             }
             child = child->GetNext();
         }
 
         delete child;
+    }
+
+    bool saveToFile(const wxString& fileName) {
+        return true;
     }
 
     std::vector<std::pair<std::string, std::string>> getTaskList() const {

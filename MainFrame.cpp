@@ -24,7 +24,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->SetMenuBar(topMenuBar);
 
     auto * leftSizer = new wxBoxSizer(wxVERTICAL);
-    auto * tasksSizer = new wxBoxSizer(wxVERTICAL);
+    tasksSizer = new wxBoxSizer(wxVERTICAL);
 
     scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
     for(int i = 0; i < 10; ++i) {
@@ -143,7 +143,24 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             std::cout << "Premuto Open" << std::endl;
             this->xmlParser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/test.xml");
             this->xmlParser.parseXML();
+            auto taskList = xmlParser.getTaskList();
 
+            for(auto t : unDoneTasks) {
+                delete t;
+            }
+            this->unDoneTasks.clear();
+            this->tasksSizer->Clear(true);
+
+            for (const auto& task: taskList) {
+                auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first), wxString::Format("%s", task.second));
+                this->unDoneTasks.push_back(testTask);
+            }
+            for (const auto i: unDoneTasks) {
+                tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+            }
+
+            scrolledWindow->Layout();
+            this->Refresh();
             break;
         }
 

@@ -32,6 +32,7 @@ private:
     void OnMenuItemClick(wxCommandEvent& event);
 
     wxScrolledWindow* scrolledWindow;
+    wxBoxSizer * tasksSizer;
     wxTextCtrl* titleBox;
     wxTextCtrl* descriptionBox;
 
