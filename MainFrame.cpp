@@ -27,10 +27,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     tasksSizer = new wxBoxSizer(wxVERTICAL);
 
     scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
-    for(int i = 0; i < 10; ++i) {
-        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s %d", wxT("Titolo"), i+1), wxString::Format("%s %d", wxT("Descrizione"), i+1));
-        this->unDoneTasks.push_back(testTask);
-    }
+    // TODO fai in modo da caricare dall'ultimo file aperto
 
     for (const auto i: unDoneTasks) {
         tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
@@ -40,12 +37,19 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
         tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
     }
 
+    if(tasksSizer->IsEmpty()) {
+        auto txtNoTask = new wxStaticText(scrolledWindow, wxID_ANY, wxT("Nessun file selezionato..."));
+        tasksSizer->Add(txtNoTask, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 5);
+    }
+
     scrolledWindow->SetSizer(tasksSizer);
     tasksSizer->FitInside(scrolledWindow);
     scrolledWindow->SetScrollRate(2, 10);
 
+    this->filePicker = new wxFilePickerCtrl(this, wxID_ANY);
     auto addTaskButton = new wxButton(this, wxID_ANY, wxString::FromUTF8("➕"));
 
+    leftSizer->Add(filePicker, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
     leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
     leftSizer->Add(addTaskButton, 0, wxALL | wxALIGN_CENTER, 5);
 
@@ -73,6 +77,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->Bind(wxEVT_CHECKBOX, &MainFrame::OnTaskCheck, this);
     this->Bind(wxEVT_BUTTON, &MainFrame::OnTaskButtonClick, this);
     this->Bind(wxEVT_MENU, &MainFrame::OnMenuItemClick, this);
+    this->Bind(wxEVT_FILEPICKER_CHANGED, &MainFrame::OnFileChange, this);
 
 }
 
@@ -117,7 +122,29 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             }
 
             case DELETE_BUTTON: {
+                // TODO cambia il log con un dialog di conferma
                 wxLogMessage("Premuto delete");
+                if(!callerTask->isChecked()) {
+                    auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
+                    if(it != unDoneTasks.end()) {
+                        auto sizer = scrolledWindow->GetSizer();
+                        sizer->Detach(callerTask);
+                        callerTask->Destroy();
+                        unDoneTasks.erase(it);
+
+                        scrolledWindow->Layout();
+                    }
+                } else {
+                    auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
+                    if(it != doneTasks.end()) {
+                        auto sizer = scrolledWindow->GetSizer();
+                        sizer->Detach(callerTask);
+                        callerTask->Destroy();
+                        doneTasks.erase(it);
+
+                        scrolledWindow->Layout();
+                    }
+                }
                 break;
             }
 
@@ -141,30 +168,48 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
         case OPEN_FILE_MENU: {
             std::cout << "Premuto Open" << std::endl;
-            this->xmlParser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/test.xml");
-            this->xmlParser.parseXML();
-            auto taskList = xmlParser.getTaskList();
-
-            for(auto t : unDoneTasks) {
-                delete t;
-            }
-            this->unDoneTasks.clear();
-            this->tasksSizer->Clear(true);
-
-            for (const auto& task: taskList) {
-                auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first), wxString::Format("%s", task.second));
-                this->unDoneTasks.push_back(testTask);
-            }
-            for (const auto i: unDoneTasks) {
-                tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-            }
-
-            scrolledWindow->Layout();
-            this->Refresh();
+            // TODO fai aprire lo stesso dialog del file picker
+            this->openFile("/home/giacomo/Scrivania/UNIFI/1_anno/test.xml");
             break;
         }
 
         default:
             break;
     }
+}
+
+void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
+    // TODO controlli sul salvataggio
+    // controlli qui...
+    this->openFile(this->filePicker->GetPath());
+}
+
+void MainFrame::openFile(const wxString &fileName) {
+    this->xmlParser.openFile(fileName);
+    this->xmlParser.parseXML();
+    auto taskList = xmlParser.getTaskList();
+
+    for(auto t : unDoneTasks) {
+        delete t;
+    }
+    this->unDoneTasks.clear();
+
+    this->tasksSizer->Clear(true);
+
+    for (const auto& task: taskList) {
+        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first), wxString::Format("%s", task.second));
+        this->unDoneTasks.push_back(testTask);
+    }
+
+    for (const auto i: unDoneTasks) {
+        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+    }
+
+    for (const auto i: doneTasks) {
+        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+    }
+
+    tasksSizer->Layout();
+    scrolledWindow->Layout();
+    this->Refresh();
 }

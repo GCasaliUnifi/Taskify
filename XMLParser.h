@@ -29,7 +29,9 @@ public:
         return false;
     }
 
+    // TODO modifica in modo tale da leggere anche se i task sono "completati o meno"
     void parseXML() {
+        this->taskList.clear();
         auto child = tasksFile.GetRoot()->GetChildren();
         while(child) {
             if(child->GetName() == "task") {
@@ -37,10 +39,8 @@ public:
                 auto inside = child->GetChildren();
                 while(inside) {
                     if(inside->GetName() == "title") {
-                        std::cout << inside->GetNodeContent() << std::endl;
                         tmpTask.first = inside->GetNodeContent().mb_str();
                     } else if(inside->GetName() == "desc") {
-                        std::cout << inside->GetNodeContent() << std::endl;
                         tmpTask.second = inside->GetNodeContent().mb_str();
                     }
                     inside = inside->GetNext();
