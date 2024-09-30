@@ -13,6 +13,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     auto *fileMenu = new wxMenu();
     fileMenu->Append(OPEN_FILE_MENU, wxT("&Open file\tCtrl-O"));
+    fileMenu->Append(SAVE_MENU, wxT("&Save file\tCtrl-S"));
+    fileMenu->Append(SAVE_AS_MENU, wxT("&Save file as..\tCtrl-Shift-S"));
     fileMenu->Append(wxID_EXIT, wxT("&Exit\tEsc"));
     topMenuBar->Append(fileMenu, wxT("File"));
 
@@ -28,14 +30,13 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                                           wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
     // TODO fai in modo da caricare dall'ultimo file aperto
-
-    for (const auto i: unDoneTasks) {
-        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-    }
-
-    for (const auto i: doneTasks) {
-        tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
-    }
+    // for (const auto i: unDoneTasks) {
+    //     tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+    // }
+    //
+    // for (const auto i: doneTasks) {
+    //     tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
+    // }
 
     if (tasksSizer->IsEmpty()) {
         auto txtNoTask = new wxStaticText(scrolledWindow, wxID_ANY, wxT("Nessun file selezionato..."));
@@ -157,7 +158,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
 void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
     switch (event.GetId()) {
         case wxID_EXIT: {
-            std::cout << "Premuto exit" << std::endl;
+            this->Close();
             break;
         }
 
@@ -185,6 +186,16 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             break;
         }
 
+        case SAVE_MENU : {
+            std::cout << "Premuto Save" << std::endl;
+            break;
+        }
+
+        case SAVE_AS_MENU : {
+            std::cout << "Premuto Save AS" << std::endl;
+            break;
+        }
+
         default:
             break;
     }
@@ -192,7 +203,13 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
     // TODO controlli sul salvataggio
-    // controlli qui...
+    // if (...current content has not been saved...)
+    // {
+    //     if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
+    //                      wxICON_QUESTION | wxYES_NO, this) == wxNO )
+    //         return;
+    //     //else: proceed asking to the user the new file to open
+    // }
     this->openFile(this->filePicker->GetPath());
 }
 

@@ -21,8 +21,8 @@
 
 enum MENU_IDs {
     OPEN_FILE_MENU = wxID_HIGHEST + 1,
-    SAVE_AS_MENU,
-    SAVE_MENU
+    SAVE_MENU,
+    SAVE_AS_MENU
 };
 
 class MainFrame : public wxFrame {
