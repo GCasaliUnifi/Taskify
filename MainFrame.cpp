@@ -4,29 +4,29 @@
 
 #include "MainFrame.h"
 
-MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) :
-    wxFrame(nullptr, wxID_ANY, title, pos, size)
-{
-    auto * verticalSizer = new wxBoxSizer(wxVERTICAL);
-    auto * horizontalSizer =  new wxBoxSizer(wxHORIZONTAL);
+MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
+    nullptr, wxID_ANY, title, pos, size) {
+    auto *verticalSizer = new wxBoxSizer(wxVERTICAL);
+    auto *horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    auto * topMenuBar = new wxMenuBar();
+    auto *topMenuBar = new wxMenuBar();
 
-    auto * fileMenu = new wxMenu();
+    auto *fileMenu = new wxMenu();
     fileMenu->Append(OPEN_FILE_MENU, wxT("&Open file\tCtrl-O"));
     fileMenu->Append(wxID_EXIT, wxT("&Exit\tEsc"));
     topMenuBar->Append(fileMenu, wxT("File"));
 
-    auto * helpMenu = new wxMenu();
+    auto *helpMenu = new wxMenu();
     helpMenu->Append(wxID_ABOUT, wxT("About"));
     topMenuBar->Append(helpMenu, wxT("Help"));
 
     this->SetMenuBar(topMenuBar);
 
-    auto * leftSizer = new wxBoxSizer(wxVERTICAL);
+    auto *leftSizer = new wxBoxSizer(wxVERTICAL);
     tasksSizer = new wxBoxSizer(wxVERTICAL);
 
-    scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
+    scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                                          wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
     // TODO fai in modo da caricare dall'ultimo file aperto
 
     for (const auto i: unDoneTasks) {
@@ -37,7 +37,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
         tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
     }
 
-    if(tasksSizer->IsEmpty()) {
+    if (tasksSizer->IsEmpty()) {
         auto txtNoTask = new wxStaticText(scrolledWindow, wxID_ANY, wxT("Nessun file selezionato..."));
         tasksSizer->Add(txtNoTask, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 5);
     }
@@ -53,13 +53,14 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
     leftSizer->Add(addTaskButton, 0, wxALL | wxALIGN_CENTER, 5);
 
-    auto * rightSizer = new wxBoxSizer(wxVERTICAL);
+    auto *rightSizer = new wxBoxSizer(wxVERTICAL);
     // TODO fai in modo che il testo "placeholder" sia significativo e magari in grigietto.
-    auto * titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
+    auto *titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
     titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
 
-    auto * descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
-    descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY | wxTE_MULTILINE);
+    auto *descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
+    descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize,
+                                    wxTE_READONLY | wxTE_MULTILINE);
 
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
     descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
@@ -78,16 +79,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->Bind(wxEVT_BUTTON, &MainFrame::OnTaskButtonClick, this);
     this->Bind(wxEVT_MENU, &MainFrame::OnMenuItemClick, this);
     this->Bind(wxEVT_FILEPICKER_CHANGED, &MainFrame::OnFileChange, this);
-
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
-    wxObject* obj = event.GetEventObject();
+    wxObject *obj = event.GetEventObject();
 
-    if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
-        if(callerTask->isChecked()) {
+    if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
+        if (callerTask->isChecked()) {
             auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
-            if(it != unDoneTasks.end()) {
+            if (it != unDoneTasks.end()) {
                 auto sizer = scrolledWindow->GetSizer();
                 sizer->Detach(callerTask);
                 sizer->Add(callerTask, 0, wxEXPAND | wxALL, 5);
@@ -98,7 +98,7 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
             }
         } else {
             auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
-            if(it != doneTasks.end()) {
+            if (it != doneTasks.end()) {
                 auto sizer = scrolledWindow->GetSizer();
                 sizer->Detach(callerTask);
                 sizer->Insert(0, callerTask, 0, wxEXPAND | wxALL, 5);
@@ -112,8 +112,8 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
 }
 
 void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
-    wxObject* obj = event.GetEventObject();
-    if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+    wxObject *obj = event.GetEventObject();
+    if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
         switch (event.GetId()) {
             case TASK_BUTTON: {
                 this->titleBox->SetValue(callerTask->getTaskTitle());
@@ -124,9 +124,9 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             case DELETE_BUTTON: {
                 // TODO cambia il log con un dialog di conferma
                 wxLogMessage("Premuto delete");
-                if(!callerTask->isChecked()) {
+                if (!callerTask->isChecked()) {
                     auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
-                    if(it != unDoneTasks.end()) {
+                    if (it != unDoneTasks.end()) {
                         auto sizer = scrolledWindow->GetSizer();
                         sizer->Detach(callerTask);
                         callerTask->Destroy();
@@ -136,7 +136,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     }
                 } else {
                     auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
-                    if(it != doneTasks.end()) {
+                    if (it != doneTasks.end()) {
                         auto sizer = scrolledWindow->GetSizer();
                         sizer->Detach(callerTask);
                         callerTask->Destroy();
@@ -167,9 +167,21 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case OPEN_FILE_MENU: {
-            std::cout << "Premuto Open" << std::endl;
-            // TODO fai aprire lo stesso dialog del file picker
-            this->openFile("/home/giacomo/Scrivania/UNIFI/1_anno/test.xml");
+            wxFileDialog openFileDialog(this, wxT("Open XML file"), "", "", "XML files (*.xml)|*.xml",
+                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+            if (openFileDialog.ShowModal() == wxID_OK) {
+                wxString newPath = openFileDialog.GetPath();
+                this->filePicker->SetPath(newPath);
+
+                // Crea un evento wxEVT_FILEPICKER_CHANGED poiché "SetPath()" non lo genera da solo.
+                wxCommandEvent fileChangeEvent(wxEVT_FILEPICKER_CHANGED, filePicker->GetId());
+                fileChangeEvent.SetEventObject(filePicker);
+                fileChangeEvent.SetString(newPath);
+
+                filePicker->GetEventHandler()->ProcessEvent(fileChangeEvent);
+            }
+
             break;
         }
 
@@ -189,15 +201,16 @@ void MainFrame::openFile(const wxString &fileName) {
     this->xmlParser.parseXML();
     auto taskList = xmlParser.getTaskList();
 
-    for(auto t : unDoneTasks) {
+    for (auto t: unDoneTasks) {
         delete t;
     }
     this->unDoneTasks.clear();
 
     this->tasksSizer->Clear(true);
 
-    for (const auto& task: taskList) {
-        auto * testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first), wxString::Format("%s", task.second));
+    for (const auto &task: taskList) {
+        auto *testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first),
+                                       wxString::Format("%s", task.second));
         this->unDoneTasks.push_back(testTask);
     }
 

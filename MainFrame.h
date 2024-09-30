@@ -14,6 +14,7 @@
 #include <wx/log.h>
 #include <wx/stattext.h>
 #include <wx/filepicker.h>
+#include <wx/filedlg.h>
 
 #include "TaskPanel.h"
 #include "XMLParser.h"
