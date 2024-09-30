@@ -54,12 +54,21 @@ public:
         delete child;
     }
 
+    void serializeXML() {
+        std::cout << "serializzz" << std::endl;
+    }
+
     bool saveToFile(const wxString& fileName) {
+        wxLogMessage("Salvato su file");
         return true;
     }
 
     std::vector<std::pair<std::string, std::string>> getTaskList() const {
         return taskList;
+    }
+
+    void setTaskList(const std::vector<std::pair<std::string, std::string>> &task_list) {
+        taskList = task_list;
     }
 
 private:

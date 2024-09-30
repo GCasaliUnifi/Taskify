@@ -165,6 +165,9 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     this->unDoneTasks.push_back(newTask);
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->Layout();
+                    if(isFileOpen) {
+                        this->hasFileBeenModified = true;
+                    }
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -209,7 +212,8 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     }
                 }
             }
-            //TODO quando non ci sono più task fare in modo che se un file è selezionato appena un testo tipo "Nessuna task nel file!".
+            //TODO quando non ci sono più task fare in modo che SE un file è selezionato appenda un testo tipo "Nessuna task nel file!".
+            this->hasFileBeenModified = true;
             break;
         }
 
@@ -252,12 +256,14 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         case SAVE_MENU: {
             // TODO implementa salvataggio
             std::cout << "Premuto Save" << std::endl;
+            this->hasFileBeenModified = false;
             break;
         }
 
         case SAVE_AS_MENU: {
             // TODO implementa salvataggio con nome.
-            std::cout << "Premuto Save AS" << std::endl;
+            wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
+                   "XML files (*.xml)|*.xml", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
             break;
         }
 
@@ -268,14 +274,14 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
     // TODO controlli sul salvataggio
-    // if (...current content has not been saved...)
-    // {
-    //     if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
-    //                      wxICON_QUESTION | wxYES_NO, this) == wxNO )
-    //         return;
-    //     //else: proceed asking to the user the new file to open
-    // }
+    if (this->hasFileBeenModified) {
+        if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
+                         wxICON_QUESTION | wxYES_NO, this) == wxNO )
+            return;
+    }
     this->openFile(this->filePicker->GetPath());
+    this->isFileOpen = true;
+    this->hasFileBeenModified = false;
 }
 
 void MainFrame::openFile(const wxString &fileName) {
@@ -307,4 +313,12 @@ void MainFrame::openFile(const wxString &fileName) {
     tasksSizer->Layout();
     scrolledWindow->Layout();
     this->Refresh();
+}
+
+void MainFrame::saveFile(const wxString &fileName) {
+    // TODO Genera tasklist dalla lista delle task;
+    //this->xmlParser.setTaskList(...);
+    this->xmlParser.serializeXML();
+    this->xmlParser.saveToFile(fileName);
+    // Setta nuovo path del file picker
 }

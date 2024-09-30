@@ -38,6 +38,7 @@ private:
     void OnMenuItemClick(wxCommandEvent& event);
     void OnFileChange(wxFileDirPickerEvent& event);
     void openFile(const wxString& fileName);
+    void saveFile(const wxString& fileName);
 
     wxScrolledWindow* scrolledWindow;
     wxBoxSizer * tasksSizer;
@@ -49,6 +50,9 @@ private:
     std::vector<TaskPanel *> unDoneTasks;
 
     XMLParser xmlParser;
+
+    bool isFileOpen = false;
+    bool hasFileBeenModified = false;
 };
 
 
