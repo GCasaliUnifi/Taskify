@@ -48,20 +48,21 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     scrolledWindow->SetScrollRate(2, 10);
 
     this->filePicker = new wxFilePickerCtrl(this, wxID_ANY);
-    auto addTaskButton = new wxButton(this, wxID_ANY, wxString::FromUTF8("➕"));
+    auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("➕"));
 
     leftSizer->Add(filePicker, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
     leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
     leftSizer->Add(addTaskButton, 0, wxALL | wxALIGN_CENTER, 5);
 
     auto *rightSizer = new wxBoxSizer(wxVERTICAL);
-    // TODO fai in modo che il testo "placeholder" sia significativo e magari in grigietto.
     auto *titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
-    titleBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    titleBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    titleBox->SetHint(wxT("Selezionare task..."));
 
     auto *descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
-    descriptionBox = new wxTextCtrl(this, wxID_ANY, wxT("Placeholder"), wxDefaultPosition, wxDefaultSize,
+    descriptionBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                                     wxTE_READONLY | wxTE_MULTILINE);
+    descriptionBox->SetHint(wxT("Selezionare task..."));
 
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
     descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
@@ -114,44 +115,70 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
 
 void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
     wxObject *obj = event.GetEventObject();
-    if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
-        switch (event.GetId()) {
-            case TASK_BUTTON: {
+
+    switch(event.GetId()) {
+        case ADD_TASK: {
+            // Apri un dialog con "titolo" e "descrizione".
+
+            // Devo dichiararlo fuori poiché dentro dà problemi.
+            const size_t index = 0;
+            const auto firstItem = tasksSizer->GetItem(index);
+            auto win = firstItem->GetWindow();
+
+            // Se nessun file è selezionato, il rpimo (e unico) elemento nel sizer è un wxStaticText.
+            // Con questo wxDynamicCast controllo se sono in questa situazione e in tal caso svuoto il Sizer.
+            if(auto text = wxDynamicCast(win, wxStaticText)) {
+                tasksSizer->Clear(true);
+            }
+
+            auto newTask = new TaskPanel(scrolledWindow, wxT("test 1"), wxT("Desc 1"));
+            this->unDoneTasks.push_back(newTask);
+            tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+            scrolledWindow->Layout();
+            break;
+        }
+
+        case TASK_BUTTON: {
+            if(const auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
                 this->titleBox->SetValue(callerTask->getTaskTitle());
                 this->descriptionBox->SetValue(callerTask->getTaskDescription());
-                break;
             }
+            break;
+        }
 
-            case DELETE_BUTTON: {
-                // TODO cambia il log con un dialog di conferma
-                wxLogMessage("Premuto delete");
-                if (!callerTask->isChecked()) {
-                    auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
-                    if (it != unDoneTasks.end()) {
-                        auto sizer = scrolledWindow->GetSizer();
-                        sizer->Detach(callerTask);
-                        callerTask->Destroy();
-                        unDoneTasks.erase(it);
+        case DELETE_BUTTON: {
+            if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+                // TODO usa un Dialog Customizzato maybe?
+                int answer = wxMessageBox("Delete task?", "Confirm", wxYES_NO | wxICON_ERROR, this);
+                if(answer == wxYES) {
+                    if (!callerTask->isChecked()) {
+                        auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
+                        if (it != unDoneTasks.end()) {
+                            auto sizer = scrolledWindow->GetSizer();
+                            sizer->Detach(callerTask);
+                            callerTask->Destroy();
+                            unDoneTasks.erase(it);
 
-                        scrolledWindow->Layout();
-                    }
-                } else {
-                    auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
-                    if (it != doneTasks.end()) {
-                        auto sizer = scrolledWindow->GetSizer();
-                        sizer->Detach(callerTask);
-                        callerTask->Destroy();
-                        doneTasks.erase(it);
+                            scrolledWindow->Layout();
+                        }
+                    } else {
+                        auto it = std::find(doneTasks.begin(), doneTasks.end(), callerTask);
+                        if (it != doneTasks.end()) {
+                            auto sizer = scrolledWindow->GetSizer();
+                            sizer->Detach(callerTask);
+                            callerTask->Destroy();
+                            doneTasks.erase(it);
 
-                        scrolledWindow->Layout();
+                            scrolledWindow->Layout();
+                        }
                     }
                 }
-                break;
             }
-
-            default:
-                break;
+            break;
         }
+
+        default:
+            break;
     }
 }
 
@@ -186,12 +213,12 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             break;
         }
 
-        case SAVE_MENU : {
+        case SAVE_MENU: {
             std::cout << "Premuto Save" << std::endl;
             break;
         }
 
-        case SAVE_AS_MENU : {
+        case SAVE_AS_MENU: {
             std::cout << "Premuto Save AS" << std::endl;
             break;
         }

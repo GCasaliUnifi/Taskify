@@ -14,7 +14,8 @@
 
 enum BUTTON_IDs {
     TASK_BUTTON = wxID_HIGHEST + 1,
-    DELETE_BUTTON
+    DELETE_BUTTON,
+    ADD_TASK
 };
 
 class TaskPanel : public wxPanel {
@@ -24,11 +25,11 @@ public:
 
     bool isChecked();
 
-    [[nodiscard]] wxString getTaskTitle() const {
+    wxString getTaskTitle() const {
         return taskTitle;
     }
 
-    [[nodiscard]] wxString getTaskDescription() const {
+    wxString getTaskDescription() const {
         return taskDescription;
     }
 

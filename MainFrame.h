@@ -15,6 +15,7 @@
 #include <wx/stattext.h>
 #include <wx/filepicker.h>
 #include <wx/filedlg.h>
+#include <wx/msgdlg.h>
 
 #include "TaskPanel.h"
 #include "XMLParser.h"
