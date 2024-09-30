@@ -119,22 +119,57 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
     switch(event.GetId()) {
         case ADD_TASK: {
             // Apri un dialog con "titolo" e "descrizione".
+            auto addTaskDialog = wxDialog(this, wxID_ANY, wxT("Aggiungi Task"));
+            auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
 
-            // Devo dichiararlo fuori poiché dentro dà problemi.
-            const size_t index = 0;
-            const auto firstItem = tasksSizer->GetItem(index);
-            auto win = firstItem->GetWindow();
+            // FIXME la documentazione consiglia l'uso di
+            //      wxStaticBox *box = new wxStaticBox(panel, wxID_ANY, "StaticBox");
+            // al posto dello staticboxsizer con dentro i figli direttamente.
+            auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Titolo Task"));
+            auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Descrizione Task"));
 
-            // Se nessun file è selezionato, il rpimo (e unico) elemento nel sizer è un wxStaticText.
-            // Con questo wxDynamicCast controllo se sono in questa situazione e in tal caso svuoto il Sizer.
-            if(auto text = wxDynamicCast(win, wxStaticText)) {
-                tasksSizer->Clear(true);
+            auto titleCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1));
+            titleCtrl->SetHint(wxT("Titolo..."));
+            dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
+
+            auto descrCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1), wxTE_MULTILINE);
+            descrCtrl->SetHint(wxT("Descrizione..."));
+            dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
+
+            // TODO valuta se colorare diversamente i buttons.
+            auto buttonSizer = addTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
+
+            dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
+            dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
+            dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
+
+            addTaskDialog.SetSizerAndFit(dialogMainSizer);
+            addTaskDialog.Layout();
+
+            if(addTaskDialog.ShowModal() == wxID_YES) {
+                if(tasksSizer->GetItemCount() > 0) {
+                    // Devo dichiararlo fuori poiché dentro dà problemi.
+                    const size_t index = 0;
+                    const auto firstItem = tasksSizer->GetItem(index);
+                    auto win = firstItem->GetWindow();
+
+                    // Se nessun file è selezionato, il primo (e unico) elemento nel sizer è un wxStaticText.
+                    // Con questo wxDynamicCast controllo se sono in questa situazione e in tal caso svuoto il Sizer.
+                    if(auto text = wxDynamicCast(win, wxStaticText)) {
+                        tasksSizer->Clear(true);
+                    }
+                }
+
+                if(!titleCtrl->IsEmpty()) {
+                    auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
+                    this->unDoneTasks.push_back(newTask);
+                    tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+                    scrolledWindow->Layout();
+                } else {
+                    wxLogMessage("Impossibile aggiungere task senza titolo!");
+                }
             }
 
-            auto newTask = new TaskPanel(scrolledWindow, wxT("test 1"), wxT("Desc 1"));
-            this->unDoneTasks.push_back(newTask);
-            tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-            scrolledWindow->Layout();
             break;
         }
 
@@ -174,6 +209,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     }
                 }
             }
+            //TODO quando non ci sono più task fare in modo che se un file è selezionato appena un testo tipo "Nessuna task nel file!".
             break;
         }
 
@@ -214,11 +250,13 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case SAVE_MENU: {
+            // TODO implementa salvataggio
             std::cout << "Premuto Save" << std::endl;
             break;
         }
 
         case SAVE_AS_MENU: {
+            // TODO implementa salvataggio con nome.
             std::cout << "Premuto Save AS" << std::endl;
             break;
         }
