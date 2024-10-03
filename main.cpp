@@ -10,7 +10,7 @@ public:
 wxIMPLEMENT_APP(Taskify);
 
 bool Taskify::OnInit() {
-    auto *mainFrame = new MainFrame(wxT("Test"), wxDefaultPosition, wxDefaultSize);
+    auto *mainFrame = new MainFrame(wxT("Taskify"), wxDefaultPosition, wxDefaultSize);
     mainFrame->Show(true);
     return true;
 }
