@@ -163,6 +163,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 if(!titleCtrl->IsEmpty()) {
                     auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
                     this->unDoneTasks.push_back(newTask);
+                    // xmlParser.addToTaskList(std::pair<std::string, std::string>(titleCtrl->GetValue().mb_str(), descrCtrl->GetValue().mb_str()));
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->Layout();
                     if(isFileOpen) {
@@ -261,9 +262,15 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case SAVE_AS_MENU: {
-            // TODO implementa salvataggio con nome.
             wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
                    "XML files (*.xml)|*.xml", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+
+            if(saveFileDialog.ShowModal() == wxID_OK) {
+                wxString newPath = saveFileDialog.GetPath();
+                this->filePicker->SetPath(newPath);
+                this->saveFile(newPath);
+                this->hasFileBeenModified = false;
+            }
             break;
         }
 
@@ -316,9 +323,23 @@ void MainFrame::openFile(const wxString &fileName) {
 }
 
 void MainFrame::saveFile(const wxString &fileName) {
-    // TODO Genera tasklist dalla lista delle task;
-    //this->xmlParser.setTaskList(...);
+    // Genero tasklist dalla lista delle task;
+    std::vector<std::pair<std::string, std::string>> currentTasklist;
+    for (auto ut: unDoneTasks) {
+        std::pair<std::string, std::string> tmpTask;
+        tmpTask.first = ut->getTaskTitle().mb_str();
+        tmpTask.second = ut->getTaskDescription().mb_str();
+        currentTasklist.push_back(tmpTask);
+    }
+
+    for (auto ut: doneTasks) {
+        std::pair<std::string, std::string> tmpTask;
+        tmpTask.first = ut->getTaskTitle().mb_str();
+        tmpTask.second = ut->getTaskDescription().mb_str();
+        currentTasklist.push_back(tmpTask);
+    }
+
+    this->xmlParser.setTaskList(currentTasklist);
     this->xmlParser.serializeXML();
     this->xmlParser.saveToFile(fileName);
-    // Setta nuovo path del file picker
 }

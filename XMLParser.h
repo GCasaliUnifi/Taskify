@@ -56,11 +56,44 @@ public:
 
     void serializeXML() {
         std::cout << "serializzz" << std::endl;
+        auto root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, "tasklist");
+        this->tasksFile.SetRoot(root);
+
+        // Structured binding disponibile da C++17, figo
+        for (const auto&[fst, snd]: taskList) {
+
+            // Radice di ogni task "<task></task>"
+            auto taskNode = new wxXmlNode(wxXML_ELEMENT_NODE, "task");
+
+            // <title></title>
+            auto taskTitleNode = new wxXmlNode(wxXML_ELEMENT_NODE, "title");
+            taskNode->AddChild(taskTitleNode);
+
+            // Testo dentro bracket title
+            auto taskTitleText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(fst));
+            taskTitleNode->AddChild(taskTitleText);
+
+            // Analogo per la desc
+            auto taskDescNode = new wxXmlNode(wxXML_ELEMENT_NODE, "desc");
+            taskNode->AddChild(taskDescNode);
+
+            auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(snd));
+            taskDescNode->AddChild(taskDescText);
+
+            root->AddChild(taskNode);
+        }
     }
 
     bool saveToFile(const wxString& fileName) {
-        wxLogMessage("Salvato su file");
-        return true;
+        if(this->tasksFile.Save(fileName)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void addToTaskList(const std::pair<std::string, std::string>& newTask) {
+        this->taskList.push_back(newTask);
     }
 
     std::vector<std::pair<std::string, std::string>> getTaskList() const {
