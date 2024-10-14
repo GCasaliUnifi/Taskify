@@ -244,7 +244,8 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case wxID_ABOUT: {
-            std::cout << "Premuto About" << std::endl;
+            wxMessageBox("SVILUPPATORE: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
+             "About Taskify", wxOK | wxICON_INFORMATION);
             break;
         }
 
