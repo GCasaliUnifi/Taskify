@@ -329,9 +329,14 @@ void MainFrame::openFile(const wxString &fileName) {
     this->tasksSizer->Clear(true);
 
     for (const auto &task: taskList) {
-        auto *testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", task.first),
-                                       wxString::Format("%s", task.second));
-        this->unDoneTasks.push_back(testTask);
+        auto *testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", std::get<0>(task)),
+                                       wxString::Format("%s", std::get<1>(task)));
+
+        if(std::get<2>(task)) {
+            this->doneTasks.push_back(testTask);
+        } else {
+            this->unDoneTasks.push_back(testTask);
+        }
     }
 
     for (const auto i: unDoneTasks) {

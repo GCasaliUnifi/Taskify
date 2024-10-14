@@ -32,16 +32,26 @@ public:
     // TODO modifica in modo tale da leggere anche se i task sono "completati o meno"
     void parseXML() {
         this->taskList.clear();
+        // Prendi il primo figlio
         auto child = tasksFile.GetRoot()->GetChildren();
-        while(child) {
+        while(child) { // loop per tutti i figli della radice
             if(child->GetName() == "task") {
-                std::pair<std::string, std::string> tmpTask;
+                std::tuple<std::string, std::string, bool> tmpTask;
+                bool taskCompleted = false;
+
+                auto attr = child->GetAttributes(); // Ritorna un puntatore al primo attributo del nodo
+                if(attr && attr->GetName() == "completed") {
+                    taskCompleted = (attr->GetValue() == "true");
+                }
+
+                std::get<2>(tmpTask) = taskCompleted;
+
                 auto inside = child->GetChildren();
                 while(inside) {
                     if(inside->GetName() == "title") {
-                        tmpTask.first = inside->GetNodeContent().mb_str();
+                        std::get<0>(tmpTask) = inside->GetNodeContent().mb_str();
                     } else if(inside->GetName() == "desc") {
-                        tmpTask.second = inside->GetNodeContent().mb_str();
+                        std::get<1>(tmpTask) = inside->GetNodeContent().mb_str();
                     }
                     inside = inside->GetNext();
                 }
@@ -59,10 +69,11 @@ public:
         this->tasksFile.SetRoot(root);
 
         // Structured binding disponibile da C++17, figo
-        for (const auto&[fst, snd]: taskList) {
+        for (const auto&[fst, snd, completed]: taskList) {
 
-            // Radice di ogni task "<task></task>"
+            // Radice di ogni task "<task completed="true/false"></task>"
             auto taskNode = new wxXmlNode(wxXML_ELEMENT_NODE, "task");
+            taskNode->AddAttribute("completed", completed ? "true" : "false");
 
             // <title></title>
             auto taskTitleNode = new wxXmlNode(wxXML_ELEMENT_NODE, "title");
@@ -91,21 +102,21 @@ public:
         return false;
     }
 
-    void addToTaskList(const std::pair<std::string, std::string>& newTask) {
+    void addToTaskList(const std::tuple<std::string, std::string, bool>& newTask) {
         this->taskList.push_back(newTask);
     }
 
-    std::vector<std::pair<std::string, std::string>> getTaskList() const {
+    std::vector<std::tuple<std::string, std::string, bool>> getTaskList() const {
         return taskList;
     }
 
-    void setTaskList(const std::vector<std::pair<std::string, std::string>> &task_list) {
+    void setTaskList(const std::vector<std::tuple<std::string, std::string, bool>> &task_list) {
         taskList = task_list;
     }
 
 private:
     wxXmlDocument tasksFile;
-    std::vector<std::pair<std::string, std::string>> taskList;
+    std::vector<std::tuple<std::string, std::string, bool>> taskList;
 };
 
 #endif //XMLPARSER_H
