@@ -6,7 +6,6 @@
 // TODO aggiungi pulsante di modifica task
 // TODO chiedi conferma di chiusura del programma se un file è modificato ma non salvato
 // TODO Quando l'utente modifica il file aggiungi qualche indicatore della modifica
-// TODO Cambia colore del "+" di agiunta task
 // TODO Gestisci il wxID_ABOUT o toglilo
 
 #include "MainFrame.h"
@@ -55,7 +54,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     scrolledWindow->SetScrollRate(2, 10);
 
     this->filePicker = new wxFilePickerCtrl(this, wxID_ANY);
-    auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("➕"));
+    // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("➕"));
+    // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("🞥"));
+    auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("✚"));
+
+    auto tmpFont = addTaskButton->GetFont();
+    tmpFont.SetPointSize(15);
+    addTaskButton->SetFont(tmpFont);
+    addTaskButton->SetBackgroundColour(wxColour(77,113,0));
+    addTaskButton->SetForegroundColour(wxColour(255, 255, 255));
 
     leftSizer->Add(filePicker, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
     leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
