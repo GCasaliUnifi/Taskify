@@ -55,7 +55,6 @@ public:
     }
 
     void serializeXML() {
-        std::cout << "serializzz" << std::endl;
         auto root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, "tasklist");
         this->tasksFile.SetRoot(root);
 

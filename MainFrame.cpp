@@ -2,8 +2,12 @@
 // Created by giacomo on 18/07/24.
 //
 
-// TODO non permettere di salvare su file task list vuote
-// TODO aggiungi pulsante di modifica
+// TODO chiedi se proseguire con dialog quando un utente prova a salvare una task list vuota.
+// TODO aggiungi pulsante di modifica task
+// TODO chiedi conferma di chiusura del programma se un file è modificato ma non salvato
+// TODO Quando l'utente modifica il file aggiungi qualche indicatore della modifica
+// TODO Cambia colore del "+" di agiunta task
+// TODO Gestisci il wxID_ABOUT o toglilo
 
 #include "MainFrame.h"
 
@@ -257,24 +261,33 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case SAVE_MENU: {
-            std::cout << "Premuto Save" << std::endl;
-            if(this->isFileOpen) {
-                auto savePath = this->filePicker->GetPath();
-                this->saveFile(savePath);
-                this->hasFileBeenModified = false;
+            if(this->unDoneTasks.empty() && this->doneTasks.empty()) {
+                wxLogMessage("Nessuna task nella lista, niente da salvare!");
                 break;
+            } else {
+                if(this->isFileOpen) {
+                    auto savePath = this->filePicker->GetPath();
+                    this->saveFile(savePath);
+                    this->hasFileBeenModified = false;
+                    break;
+                }
             }
         }
 
         case SAVE_AS_MENU: {
-            wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
+            if(this->unDoneTasks.empty() && this->doneTasks.empty()) {
+                wxLogMessage("Nessuna task nella lista, niente da salvare!");
+            } else {
+                wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
                    "XML files (*.xml)|*.xml", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 
-            if(saveFileDialog.ShowModal() == wxID_OK) {
-                wxString newPath = saveFileDialog.GetPath();
-                this->filePicker->SetPath(newPath);
-                this->saveFile(newPath);
-                this->hasFileBeenModified = false;
+                if(saveFileDialog.ShowModal() == wxID_OK) {
+                    wxString newPath = saveFileDialog.GetPath();
+                    this->filePicker->SetPath(newPath);
+                    this->saveFile(newPath);
+                    this->hasFileBeenModified = false;
+                    this->isFileOpen = true;
+                }
             }
             break;
         }
@@ -346,4 +359,5 @@ void MainFrame::saveFile(const wxString &fileName) {
     this->xmlParser.setTaskList(currentTasklist);
     this->xmlParser.serializeXML();
     this->xmlParser.saveToFile(fileName);
+    this->filePicker->SetPath(filePicker->GetPath());
 }
