@@ -2,6 +2,9 @@
 // Created by giacomo on 18/07/24.
 //
 
+// TODO non permettere di salvare su file task list vuote
+// TODO aggiungi pulsante di modifica
+
 #include "MainFrame.h"
 
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
@@ -136,7 +139,6 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             descrCtrl->SetHint(wxT("Descrizione..."));
             dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
 
-            // TODO valuta se colorare diversamente i buttons.
             auto buttonSizer = addTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
 
             dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
@@ -166,9 +168,8 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     // xmlParser.addToTaskList(std::pair<std::string, std::string>(titleCtrl->GetValue().mb_str(), descrCtrl->GetValue().mb_str()));
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->Layout();
-                    if(isFileOpen) {
-                        this->hasFileBeenModified = true;
-                    }
+                    // if(isFileOpen) {}
+                    this->hasFileBeenModified = true;
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -187,7 +188,6 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
 
         case DELETE_BUTTON: {
             if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
-                // TODO usa un Dialog Customizzato maybe?
                 int answer = wxMessageBox("Delete task?", "Confirm", wxYES_NO | wxICON_ERROR, this);
                 if(answer == wxYES) {
                     if (!callerTask->isChecked()) {
@@ -214,6 +214,8 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 }
             }
             //TODO quando non ci sono più task fare in modo che SE un file è selezionato appenda un testo tipo "Nessuna task nel file!".
+            this->titleBox->Clear();
+            this->descriptionBox->Clear();
             this->hasFileBeenModified = true;
             break;
         }
@@ -255,10 +257,13 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case SAVE_MENU: {
-            // TODO implementa salvataggio
             std::cout << "Premuto Save" << std::endl;
-            this->hasFileBeenModified = false;
-            break;
+            if(this->isFileOpen) {
+                auto savePath = this->filePicker->GetPath();
+                this->saveFile(savePath);
+                this->hasFileBeenModified = false;
+                break;
+            }
         }
 
         case SAVE_AS_MENU: {
@@ -280,7 +285,6 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 }
 
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
-    // TODO controlli sul salvataggio
     if (this->hasFileBeenModified) {
         if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
                          wxICON_QUESTION | wxYES_NO, this) == wxNO )

@@ -15,10 +15,9 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
 
     auto * taskButton = new wxButton(this, TASK_BUTTON, title, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
     taskButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
-
-    // TODO valuta se mettere una X rossa gigante al posto del cestino.
+    
     auto * deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
-    deleteButton->SetBackgroundColour(wxColour(128,0,0));
+    deleteButton->SetBackgroundColour(wxColour(163,22, 33));
     deleteButton->SetForegroundColour(wxColour(255,255,255));
     deleteButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
     deleteButton->Fit();
