@@ -25,6 +25,10 @@ public:
 
     bool isChecked();
 
+    void checkTask() {
+        this->checkBox->SetValue(true);
+    }
+
     wxString getTaskTitle() const {
         return taskTitle;
     }

@@ -124,6 +124,8 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
                 unDoneTasks.insert(unDoneTasks.begin(), callerTask);
             }
         }
+
+        this->hasFileBeenModified = true;
     }
 }
 
@@ -321,21 +323,18 @@ void MainFrame::openFile(const wxString &fileName) {
     this->xmlParser.parseXML();
     auto taskList = xmlParser.getTaskList();
 
-    for (auto t: unDoneTasks) {
-        delete t;
-    }
     this->unDoneTasks.clear();
-
+    this->doneTasks.clear();
     this->tasksSizer->Clear(true);
 
     for (const auto &task: taskList) {
-        auto *testTask = new TaskPanel(scrolledWindow, wxString::Format("%s", std::get<0>(task)),
+        auto *readTask = new TaskPanel(scrolledWindow, wxString::Format("%s", std::get<0>(task)),
                                        wxString::Format("%s", std::get<1>(task)));
 
         if(std::get<2>(task)) {
-            this->doneTasks.push_back(testTask);
+            this->doneTasks.push_back(readTask);
         } else {
-            this->unDoneTasks.push_back(testTask);
+            this->unDoneTasks.push_back(readTask);
         }
     }
 
@@ -345,6 +344,7 @@ void MainFrame::openFile(const wxString &fileName) {
 
     for (const auto i: doneTasks) {
         tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+        i->checkTask();
     }
 
     tasksSizer->Layout();
@@ -354,18 +354,20 @@ void MainFrame::openFile(const wxString &fileName) {
 
 void MainFrame::saveFile(const wxString &fileName) {
     // Genero tasklist dalla lista delle task;
-    std::vector<std::pair<std::string, std::string>> currentTasklist;
+    std::vector<std::tuple<std::string, std::string, bool>> currentTasklist;
     for (auto ut: unDoneTasks) {
-        std::pair<std::string, std::string> tmpTask;
-        tmpTask.first = ut->getTaskTitle().mb_str();
-        tmpTask.second = ut->getTaskDescription().mb_str();
+        std::tuple<std::string, std::string, bool> tmpTask;
+        std::get<0>(tmpTask) = ut->getTaskTitle().mb_str();
+        std::get<1>(tmpTask) = ut->getTaskDescription().mb_str();
+        std::get<2>(tmpTask) = false;
         currentTasklist.push_back(tmpTask);
     }
 
     for (auto ut: doneTasks) {
-        std::pair<std::string, std::string> tmpTask;
-        tmpTask.first = ut->getTaskTitle().mb_str();
-        tmpTask.second = ut->getTaskDescription().mb_str();
+        std::tuple<std::string, std::string, bool> tmpTask;
+        std::get<0>(tmpTask) = ut->getTaskTitle().mb_str();
+        std::get<1>(tmpTask) = ut->getTaskDescription().mb_str();
+        std::get<2>(tmpTask) = true;
         currentTasklist.push_back(tmpTask);
     }
 

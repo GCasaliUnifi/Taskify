@@ -19,6 +19,7 @@ public:
 
     bool openFile(const wxString& fileName) {
         if(tasksFile.Load(fileName)) {
+            std::cout << " file load" << std::endl;
             if(tasksFile.GetRoot()->GetName() != "tasklist") {
                 std::cout << "Not a tasks file!" << std::endl;
                 return false;
@@ -29,7 +30,6 @@ public:
         return false;
     }
 
-    // TODO modifica in modo tale da leggere anche se i task sono "completati o meno"
     void parseXML() {
         this->taskList.clear();
         // Prendi il primo figlio
@@ -94,7 +94,7 @@ public:
         }
     }
 
-    bool saveToFile(const wxString& fileName) {
+    bool saveToFile(const wxString& fileName) const {
         if(this->tasksFile.Save(fileName)) {
             return true;
         }
