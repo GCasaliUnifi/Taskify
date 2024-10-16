@@ -19,7 +19,7 @@ public:
 
     bool openFile(const wxString& fileName) {
         if(tasksFile.Load(fileName)) {
-            std::cout << " file load" << std::endl;
+            std::cout << tasksFile.GetFileEncoding() << std::endl;
             if(tasksFile.GetRoot()->GetName() != "tasklist") {
                 std::cout << "Not a tasks file!" << std::endl;
                 return false;
@@ -49,9 +49,9 @@ public:
                 auto inside = child->GetChildren();
                 while(inside) {
                     if(inside->GetName() == "title") {
-                        std::get<0>(tmpTask) = inside->GetNodeContent().mb_str();
+                        std::get<0>(tmpTask) = std::string(inside->GetNodeContent().ToUTF8().data());
                     } else if(inside->GetName() == "desc") {
-                        std::get<1>(tmpTask) = inside->GetNodeContent().mb_str();
+                        std::get<1>(tmpTask) = std::string(inside->GetNodeContent().ToUTF8().data());
                     }
                     inside = inside->GetNext();
                 }
@@ -80,14 +80,14 @@ public:
             taskNode->AddChild(taskTitleNode);
 
             // Testo dentro bracket title
-            auto taskTitleText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(fst));
+            auto taskTitleText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(fst.c_str(), wxConvUTF8));
             taskTitleNode->AddChild(taskTitleText);
 
             // Analogo per la desc
             auto taskDescNode = new wxXmlNode(wxXML_ELEMENT_NODE, "desc");
             taskNode->AddChild(taskDescNode);
 
-            auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(snd));
+            auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(snd.c_str(), wxConvUTF8));
             taskDescNode->AddChild(taskDescText);
 
             root->AddChild(taskNode);

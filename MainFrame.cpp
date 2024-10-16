@@ -328,8 +328,8 @@ void MainFrame::openFile(const wxString &fileName) {
     this->tasksSizer->Clear(true);
 
     for (const auto &task: taskList) {
-        auto *readTask = new TaskPanel(scrolledWindow, wxString::Format("%s", std::get<0>(task)),
-                                       wxString::Format("%s", std::get<1>(task)));
+        auto *readTask = new TaskPanel(scrolledWindow, wxString::FromUTF8(std::get<0>(task).c_str()),
+                                       wxString::FromUTF8(std::get<1>(task).c_str()));
 
         if(std::get<2>(task)) {
             this->doneTasks.push_back(readTask);
@@ -357,16 +357,16 @@ void MainFrame::saveFile(const wxString &fileName) {
     std::vector<std::tuple<std::string, std::string, bool>> currentTasklist;
     for (auto ut: unDoneTasks) {
         std::tuple<std::string, std::string, bool> tmpTask;
-        std::get<0>(tmpTask) = ut->getTaskTitle().mb_str();
-        std::get<1>(tmpTask) = ut->getTaskDescription().mb_str();
+        std::get<0>(tmpTask) = ut->getTaskTitle().ToUTF8().data();
+        std::get<1>(tmpTask) = ut->getTaskDescription().ToUTF8().data();
         std::get<2>(tmpTask) = false;
         currentTasklist.push_back(tmpTask);
     }
 
     for (auto ut: doneTasks) {
         std::tuple<std::string, std::string, bool> tmpTask;
-        std::get<0>(tmpTask) = ut->getTaskTitle().mb_str();
-        std::get<1>(tmpTask) = ut->getTaskDescription().mb_str();
+        std::get<0>(tmpTask) = ut->getTaskTitle().ToUTF8().data();
+        std::get<1>(tmpTask) = ut->getTaskDescription().ToUTF8().data();
         std::get<2>(tmpTask) = true;
         currentTasklist.push_back(tmpTask);
     }
