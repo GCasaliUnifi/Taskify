@@ -37,6 +37,7 @@ private:
     void OnTaskButtonClick(wxCommandEvent& event);
     void OnMenuItemClick(wxCommandEvent& event);
     void OnFileChange(wxFileDirPickerEvent& event);
+    void OnClose(wxCloseEvent& close);
     void openFile(const wxString& fileName);
     void saveFile(const wxString& fileName);
 

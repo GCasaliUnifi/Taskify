@@ -2,11 +2,8 @@
 // Created by giacomo on 18/07/24.
 //
 
-// TODO chiedi se proseguire con dialog quando un utente prova a salvare una task list vuota.
 // TODO aggiungi pulsante di modifica task
-// TODO chiedi conferma di chiusura del programma se un file è modificato ma non salvato
 // TODO Quando l'utente modifica il file aggiungi qualche indicatore della modifica
-// TODO Gestisci il wxID_ABOUT o toglilo
 
 #include "MainFrame.h"
 
@@ -35,14 +32,6 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     scrolledWindow = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                                           wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN);
-    // TODO fai in modo da caricare dall'ultimo file aperto
-    // for (const auto i: unDoneTasks) {
-    //     tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-    // }
-    //
-    // for (const auto i: doneTasks) {
-    //     tasksSizer->Add(i, 0, wxEXPAND | wxALL, 5);
-    // }
 
     if (tasksSizer->IsEmpty()) {
         auto txtNoTask = new wxStaticText(scrolledWindow, wxID_ANY, wxT("Nessun file selezionato..."));
@@ -95,6 +84,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->Bind(wxEVT_BUTTON, &MainFrame::OnTaskButtonClick, this);
     this->Bind(wxEVT_MENU, &MainFrame::OnMenuItemClick, this);
     this->Bind(wxEVT_FILEPICKER_CHANGED, &MainFrame::OnFileChange, this);
+    this->Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
@@ -226,7 +216,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     }
                 }
             }
-            //TODO quando non ci sono più task fare in modo che SE un file è selezionato appenda un testo tipo "Nessuna task nel file!".
+
             this->titleBox->Clear();
             this->descriptionBox->Clear();
             this->hasFileBeenModified = true;
@@ -246,7 +236,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case wxID_ABOUT: {
-            wxMessageBox("SVILUPPATORE: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
+            wxMessageBox("Sviluppatore: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
              "About Taskify", wxOK | wxICON_INFORMATION);
             break;
         }
@@ -309,13 +299,35 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
     if (this->hasFileBeenModified) {
-        if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
+        if (wxMessageBox(_("Ci sono delle modifiche non salvate! Procedere?"), _("Confermare"),
                          wxICON_QUESTION | wxYES_NO, this) == wxNO )
             return;
     }
     this->openFile(this->filePicker->GetPath());
     this->isFileOpen = true;
     this->hasFileBeenModified = false;
+}
+
+void MainFrame::OnClose(wxCloseEvent &event) {
+    if(hasFileBeenModified) {
+        int response = wxMessageBox(
+            "Vuoi salvare le modifiche prima di uscire?",
+            "Conferma chiusura",
+            wxYES_NO | wxCANCEL | wxICON_QUESTION,
+            this);
+
+        if(response == wxYES) {
+            auto savePath = this->filePicker->GetPath();
+            this->saveFile(savePath);
+            event.Skip();
+        } else if(response == wxNO) {
+            event.Skip();
+        } else if(response == wxCANCEL){
+            event.Veto();
+        }
+    } else {
+        event.Skip();
+    }
 }
 
 void MainFrame::openFile(const wxString &fileName) {

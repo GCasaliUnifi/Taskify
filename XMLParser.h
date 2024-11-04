@@ -19,9 +19,8 @@ public:
 
     bool openFile(const wxString& fileName) {
         if(tasksFile.Load(fileName)) {
-            std::cout << tasksFile.GetFileEncoding() << std::endl;
             if(tasksFile.GetRoot()->GetName() != "tasklist") {
-                std::cout << "Not a tasks file!" << std::endl;
+                wxMessageBox("Il file selezionato non è un file valido di tasks!", "Attenzione!", wxOK | wxICON_INFORMATION);
                 return false;
             }
             return true;
