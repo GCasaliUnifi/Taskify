@@ -8,7 +8,8 @@
 #include "MainFrame.h"
 
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
-    nullptr, wxID_ANY, title, pos, size) {
+    nullptr, wxID_ANY, title, pos, size)
+{
     auto *verticalSizer = new wxBoxSizer(wxVERTICAL);
     auto *horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -304,8 +305,6 @@ void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
             return;
     }
     this->openFile(this->filePicker->GetPath());
-    this->isFileOpen = true;
-    this->hasFileBeenModified = false;
 }
 
 void MainFrame::OnClose(wxCloseEvent &event) {
@@ -331,37 +330,43 @@ void MainFrame::OnClose(wxCloseEvent &event) {
 }
 
 void MainFrame::openFile(const wxString &fileName) {
-    this->xmlParser.openFile(fileName);
-    this->xmlParser.parseXML();
-    auto taskList = xmlParser.getTaskList();
+    if (this->xmlParser.openFile(fileName)) {
+        this->xmlParser.parseXML();
+        auto taskList = xmlParser.getTaskList();
 
-    this->unDoneTasks.clear();
-    this->doneTasks.clear();
-    this->tasksSizer->Clear(true);
+        this->unDoneTasks.clear();
+        this->doneTasks.clear();
+        this->tasksSizer->Clear(true);
 
-    for (const auto &task: taskList) {
-        auto *readTask = new TaskPanel(scrolledWindow, wxString::FromUTF8(std::get<0>(task).c_str()),
-                                       wxString::FromUTF8(std::get<1>(task).c_str()));
+        for (const auto &task: taskList) {
+            auto *readTask = new TaskPanel(scrolledWindow, wxString::FromUTF8(std::get<0>(task).c_str()),
+                                           wxString::FromUTF8(std::get<1>(task).c_str()));
 
-        if(std::get<2>(task)) {
-            this->doneTasks.push_back(readTask);
-        } else {
-            this->unDoneTasks.push_back(readTask);
+            if(std::get<2>(task)) {
+                this->doneTasks.push_back(readTask);
+            } else {
+                this->unDoneTasks.push_back(readTask);
+            }
         }
-    }
 
-    for (const auto i: unDoneTasks) {
-        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-    }
+        for (const auto i: unDoneTasks) {
+            tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+        }
 
-    for (const auto i: doneTasks) {
-        tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
-        i->checkTask();
-    }
+        for (const auto i: doneTasks) {
+            tasksSizer->Add(i, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+            i->checkTask();
+        }
 
-    tasksSizer->Layout();
-    scrolledWindow->Layout();
-    this->Refresh();
+        this->isFileOpen = true;
+        this->hasFileBeenModified = false;
+
+        tasksSizer->Layout();
+        scrolledWindow->Layout();
+        this->Refresh();
+    } else {
+        this->filePicker->SetPath("");
+    }
 }
 
 void MainFrame::saveFile(const wxString &fileName) {

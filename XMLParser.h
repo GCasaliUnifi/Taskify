@@ -18,12 +18,15 @@ public:
     }
 
     bool openFile(const wxString& fileName) {
+        wxLogNull logNo; // Disabilita temporaneamente wxLog
         if(tasksFile.Load(fileName)) {
             if(tasksFile.GetRoot()->GetName() != "tasklist") {
                 wxMessageBox("Il file selezionato non è un file valido di tasks!", "Attenzione!", wxOK | wxICON_INFORMATION);
                 return false;
             }
             return true;
+        } else {
+            wxMessageBox(wxT("Il file selezionato non è un file XML valido!"), "Errore!", wxOK | wxICON_ERROR);
         }
 
         return false;
@@ -67,7 +70,7 @@ public:
         auto root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, "tasklist");
         this->tasksFile.SetRoot(root);
 
-        // Structured binding disponibile da C++17, figo
+        // Structured binding disponibile da C++17
         for (const auto&[fst, snd, completed]: taskList) {
 
             // Radice di ogni task "<task completed="true/false"></task>"
