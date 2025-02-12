@@ -15,7 +15,8 @@
 enum BUTTON_IDs {
     TASK_BUTTON = wxID_HIGHEST + 1,
     DELETE_BUTTON,
-    ADD_TASK
+    ADD_TASK,
+    MODIFY_TASK
 };
 
 class TaskPanel : public wxPanel {

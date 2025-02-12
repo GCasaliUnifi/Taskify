@@ -1,8 +1,4 @@
-//
-// Created by giacomo on 18/07/24.
-//
-
-// TODO aggiungi pulsante di modifica task
+// TODO implementa pulsante di modifica task
 
 #include "MainFrame.h"
 
@@ -67,11 +63,15 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
                                     wxTE_READONLY | wxTE_MULTILINE);
     descriptionBox->SetHint(wxT("Selezionare task..."));
 
+    modifyTaskButton = new wxButton(this, MODIFY_TASK, wxT("Modifica task"));
+    modifyTaskButton->Disable();
+
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
     descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
 
     rightSizer->Add(titleSizer, 0, wxEXPAND | wxBOTTOM, 5);
     rightSizer->Add(descriptionSizer, 1, wxEXPAND, 5);
+    rightSizer->Add(modifyTaskButton, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
     horizontalSizer->Add(leftSizer, 2, wxEXPAND | wxRIGHT, 10);
     horizontalSizer->Add(rightSizer, 1, wxEXPAND, 0);
@@ -115,8 +115,10 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
             }
         }
 
-        this->hasFileBeenModified = true;
-        SetTitle("* " + GetTitle());
+        if (!this->hasFileBeenModified) {
+            this->hasFileBeenModified = true;
+            SetTitle("* " + GetTitle());
+        }
     }
 }
 
@@ -154,7 +156,6 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
 
             if(addTaskDialog.ShowModal() == wxID_YES) {
                 if(tasksSizer->GetItemCount() > 0) {
-                    // Devo dichiararlo fuori poiché dentro dà problemi.
                     const size_t index = 0;
                     const auto firstItem = tasksSizer->GetItem(index);
                     auto win = firstItem->GetWindow();
@@ -169,12 +170,13 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 if(!titleCtrl->IsEmpty()) {
                     auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
                     this->unDoneTasks.push_back(newTask);
-                    // xmlParser.addToTaskList(std::pair<std::string, std::string>(titleCtrl->GetValue().mb_str(), descrCtrl->GetValue().mb_str()));
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->Layout();
-                    // if(isFileOpen) {}
-                    this->hasFileBeenModified = true;
-                    SetTitle("* " + GetTitle());
+                    if (!this->hasFileBeenModified) {
+                        this->hasFileBeenModified = true;
+                        SetTitle("* " + GetTitle());
+                    }
+
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -187,6 +189,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             if(const auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
                 this->titleBox->SetValue(callerTask->getTaskTitle());
                 this->descriptionBox->SetValue(callerTask->getTaskDescription());
+                modifyTaskButton->Enable();
             }
             break;
         }
@@ -216,14 +219,26 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                             scrolledWindow->Layout();
                         }
                     }
-                    this->hasFileBeenModified = true;
-                    SetTitle("* " + GetTitle());
+
+                    if (!this->hasFileBeenModified) {
+                        this->hasFileBeenModified = true;
+                        SetTitle("* " + GetTitle());
+                    }
+
+
+                    this->titleBox->Clear();
+                    this->descriptionBox->Clear();
+                    this->descriptionBox->SetHint(wxT("Selezionare task..."));
+                    modifyTaskButton->Disable();
                 }
             }
 
-            this->titleBox->Clear();
-            this->descriptionBox->Clear();
-            this->descriptionBox->SetHint(wxT("Selezionare task..."));
+
+            break;
+        }
+
+        case MODIFY_TASK: {
+            std::cout << "premuto modify" << std::endl;
             break;
         }
 

@@ -45,6 +45,7 @@ private:
     wxBoxSizer * tasksSizer;
     wxTextCtrl* titleBox;
     wxTextCtrl* descriptionBox;
+    wxButton * modifyTaskButton;
     wxFilePickerCtrl* filePicker;
 
     std::vector<TaskPanel *> doneTasks;
