@@ -26,7 +26,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     helpMenu->Append(wxID_ABOUT, wxT("About"));
     topMenuBar->Append(helpMenu, wxT("Help"));
 
-    this->SetMenuBar(topMenuBar);
+    this->wxFrameBase::SetMenuBar(topMenuBar);
 
     auto *leftSizer = new wxBoxSizer(wxVERTICAL);
     tasksSizer = new wxBoxSizer(wxVERTICAL);
@@ -43,7 +43,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     tasksSizer->FitInside(scrolledWindow);
     scrolledWindow->SetScrollRate(2, 10);
 
-    this->filePicker = new wxFilePickerCtrl(this, wxID_ANY);
+    this->filePicker = new wxFilePickerCtrl(this, wxID_ANY, "", "Selezionare un file XML", "XML files (*.xml)|*.xml");
     // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("➕"));
     // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("🞥"));
     auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("✚"));
@@ -215,12 +215,13 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                             scrolledWindow->Layout();
                         }
                     }
+                    this->hasFileBeenModified = true;
                 }
             }
 
             this->titleBox->Clear();
             this->descriptionBox->Clear();
-            this->hasFileBeenModified = true;
+            this->descriptionBox->SetHint(wxT("Selezionare task..."));
             break;
         }
 
@@ -243,7 +244,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case OPEN_FILE_MENU: {
-            wxFileDialog openFileDialog(this, wxT("Open XML file"), "", "", "XML files (*.xml)|*.xml",
+            wxFileDialog openFileDialog(this, wxT("Selzionare file XML"), "", "", "XML files (*.xml)|*.xml",
                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
             if (openFileDialog.ShowModal() == wxID_OK) {
@@ -360,6 +361,9 @@ void MainFrame::openFile(const wxString &fileName) {
 
         this->isFileOpen = true;
         this->hasFileBeenModified = false;
+        this->titleBox->Clear();
+        this->descriptionBox->Clear();
+        this->descriptionBox->SetHint(wxT("Selezionare task..."));
 
         tasksSizer->Layout();
         scrolledWindow->Layout();
@@ -390,6 +394,7 @@ void MainFrame::saveFile(const wxString &fileName) {
 
     this->xmlParser.setTaskList(currentTasklist);
     this->xmlParser.serializeXML();
+    // if() .. {}
     this->xmlParser.saveToFile(fileName);
     this->filePicker->SetPath(filePicker->GetPath());
 }
