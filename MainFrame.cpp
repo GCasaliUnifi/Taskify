@@ -3,7 +3,6 @@
 //
 
 // TODO aggiungi pulsante di modifica task
-// TODO Quando l'utente modifica il file aggiungi qualche indicatore della modifica
 
 #include "MainFrame.h"
 
@@ -117,6 +116,7 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
         }
 
         this->hasFileBeenModified = true;
+        SetTitle("* " + GetTitle());
     }
 }
 
@@ -174,6 +174,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     scrolledWindow->Layout();
                     // if(isFileOpen) {}
                     this->hasFileBeenModified = true;
+                    SetTitle("* " + GetTitle());
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -216,6 +217,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                         }
                     }
                     this->hasFileBeenModified = true;
+                    SetTitle("* " + GetTitle());
                 }
             }
 
@@ -271,6 +273,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
                     auto savePath = this->filePicker->GetPath();
                     this->saveFile(savePath);
                     this->hasFileBeenModified = false;
+                    SetTitle("Taskify");
                     break;
                 }
             }
@@ -288,6 +291,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
                     this->filePicker->SetPath(newPath);
                     this->saveFile(newPath);
                     this->hasFileBeenModified = false;
+                    SetTitle("Taskify");
                     this->isFileOpen = true;
                 }
             }
@@ -361,6 +365,7 @@ void MainFrame::openFile(const wxString &fileName) {
 
         this->isFileOpen = true;
         this->hasFileBeenModified = false;
+        SetTitle("Taskify");
         this->titleBox->Clear();
         this->descriptionBox->Clear();
         this->descriptionBox->SetHint(wxT("Selezionare task..."));
