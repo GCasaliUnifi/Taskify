@@ -48,6 +48,8 @@ private:
     wxButton * modifyTaskButton;
     wxFilePickerCtrl* filePicker;
 
+    TaskPanel * selectedTask = nullptr;
+
     std::vector<TaskPanel *> doneTasks;
     std::vector<TaskPanel *> unDoneTasks;
 

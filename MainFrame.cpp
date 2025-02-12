@@ -3,8 +3,7 @@
 #include "MainFrame.h"
 
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
-    nullptr, wxID_ANY, title, pos, size)
-{
+    nullptr, wxID_ANY, title, pos, size) {
     auto *verticalSizer = new wxBoxSizer(wxVERTICAL);
     auto *horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -46,7 +45,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto tmpFont = addTaskButton->GetFont();
     tmpFont.SetPointSize(15);
     addTaskButton->SetFont(tmpFont);
-    addTaskButton->SetBackgroundColour(wxColour(77,113,0));
+    addTaskButton->SetBackgroundColour(wxColour(77, 113, 0));
     addTaskButton->SetForegroundColour(wxColour(255, 255, 255));
 
     leftSizer->Add(filePicker, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
@@ -125,23 +124,22 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
 void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
     wxObject *obj = event.GetEventObject();
 
-    switch(event.GetId()) {
+    switch (event.GetId()) {
         case ADD_TASK: {
             // Apri un dialog con "titolo" e "descrizione".
             auto addTaskDialog = wxDialog(this, wxID_ANY, wxT("Aggiungi Task"));
             auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
 
-            // FIXME la documentazione consiglia l'uso di
-            //      wxStaticBox *box = new wxStaticBox(panel, wxID_ANY, "StaticBox");
-            // al posto dello staticboxsizer con dentro i figli direttamente.
             auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Titolo Task"));
             auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Descrizione Task"));
 
-            auto titleCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1));
+            auto titleCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                                            wxSize(400, -1));
             titleCtrl->SetHint(wxT("Titolo..."));
             dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
 
-            auto descrCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1), wxTE_MULTILINE);
+            auto descrCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1),
+                                            wxTE_MULTILINE);
             descrCtrl->SetHint(wxT("Descrizione..."));
             dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
 
@@ -154,29 +152,31 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             addTaskDialog.SetSizerAndFit(dialogMainSizer);
             addTaskDialog.Layout();
 
-            if(addTaskDialog.ShowModal() == wxID_YES) {
-                if(tasksSizer->GetItemCount() > 0) {
+            if (addTaskDialog.ShowModal() == wxID_YES) {
+                if (tasksSizer->GetItemCount() > 0) {
                     const size_t index = 0;
                     const auto firstItem = tasksSizer->GetItem(index);
                     auto win = firstItem->GetWindow();
 
                     // Se nessun file è selezionato, il primo (e unico) elemento nel sizer è un wxStaticText.
                     // Con questo wxDynamicCast controllo se sono in questa situazione e in tal caso svuoto il Sizer.
-                    if(auto text = wxDynamicCast(win, wxStaticText)) {
+                    if (auto text = wxDynamicCast(win, wxStaticText)) {
                         tasksSizer->Clear(true);
                     }
                 }
 
-                if(!titleCtrl->IsEmpty()) {
+                if (!titleCtrl->IsEmpty()) {
                     auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
                     this->unDoneTasks.push_back(newTask);
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->Layout();
+
                     if (!this->hasFileBeenModified) {
                         this->hasFileBeenModified = true;
                         SetTitle("* " + GetTitle());
                     }
 
+                    selectedTask = nullptr;
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -186,18 +186,24 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
         }
 
         case TASK_BUTTON: {
-            if(const auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+            if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
                 this->titleBox->SetValue(callerTask->getTaskTitle());
                 this->descriptionBox->SetValue(callerTask->getTaskDescription());
                 modifyTaskButton->Enable();
+
+                if (selectedTask) {
+                    selectedTask->setTaskColour(wxColour(53, 53, 53));
+                }
+                selectedTask = callerTask;
+                callerTask->setTaskColour(wxColour(0,83, 53));
             }
             break;
         }
 
         case DELETE_BUTTON: {
-            if(auto* callerTask = dynamic_cast<TaskPanel *>(obj)) {
+            if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
                 int answer = wxMessageBox("Delete task?", "Confirm", wxYES_NO | wxICON_ERROR, this);
-                if(answer == wxYES) {
+                if (answer == wxYES) {
                     if (!callerTask->isChecked()) {
                         auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
                         if (it != unDoneTasks.end()) {
@@ -230,15 +236,61 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     this->descriptionBox->Clear();
                     this->descriptionBox->SetHint(wxT("Selezionare task..."));
                     modifyTaskButton->Disable();
+                    selectedTask = nullptr;
                 }
             }
 
-
+            /* FIXME se nessun file è stato aperto e il task list viene svuotato, allora il file non dovrebbe
+             *  essere considerato modificato (hasFileBeenModified = false), altrimenti chiede conferme di chiusura e di
+             *  salvare progressi inesistenti.
+            */
             break;
         }
 
         case MODIFY_TASK: {
-            std::cout << "premuto modify" << std::endl;
+            const wxString oldTitle = selectedTask->getTaskTitle();
+            const wxString oldDescr = selectedTask->getTaskDescription();
+
+            auto modTaskDialog = wxDialog(this, wxID_ANY, wxT("Modifica Task"));
+            auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
+
+            auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuovo titolo"));
+            auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuova descrizione"));
+
+            auto titleCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                                            wxSize(400, -1));
+            titleCtrl->SetHint(oldTitle);
+            dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
+
+            auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1),
+                                            wxTE_MULTILINE);
+            descrCtrl->SetHint(oldDescr);
+            dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
+
+            auto buttonSizer = modTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
+
+            dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
+            dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
+            dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
+
+            modTaskDialog.SetSizerAndFit(dialogMainSizer);
+            modTaskDialog.Layout();
+
+            if (modTaskDialog.ShowModal() == wxID_YES) {
+                if (!titleCtrl->IsEmpty()) {
+                    selectedTask->setTaskTitle(titleCtrl->GetValue());
+                    this->titleBox->SetValue(titleCtrl->GetValue());
+                }
+
+                selectedTask->setTaskDescription(descrCtrl->GetValue());
+                this->descriptionBox->SetValue(descrCtrl->GetValue());
+
+                if (!this->hasFileBeenModified) {
+                    this->hasFileBeenModified = true;
+                    SetTitle("* " + GetTitle());
+                }
+            }
+
             break;
         }
 
@@ -255,8 +307,9 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case wxID_ABOUT: {
-            wxMessageBox("Sviluppatore: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
-             "About Taskify", wxOK | wxICON_INFORMATION);
+            wxMessageBox(
+                "Sviluppatore: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
+                "About Taskify", wxOK | wxICON_INFORMATION);
             break;
         }
 
@@ -268,7 +321,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
                 wxString newPath = openFileDialog.GetPath();
                 this->filePicker->SetPath(newPath);
 
-                // Crea un evento wxEVT_FILEPICKER_CHANGED poiché "SetPath()" non lo genera da solo.
+                // Crea un evento wxEVT_FILEPICKER_CHANGED poiché "SetPath()" non lo genera automaticamente.
                 wxCommandEvent fileChangeEvent(wxEVT_FILEPICKER_CHANGED, filePicker->GetId());
                 fileChangeEvent.SetEventObject(filePicker);
                 fileChangeEvent.SetString(newPath);
@@ -280,28 +333,28 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
         }
 
         case SAVE_MENU: {
-            if(this->unDoneTasks.empty() && this->doneTasks.empty()) {
+            if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
                 wxLogMessage("Nessuna task nella lista, niente da salvare!");
                 break;
-            } else {
-                if(this->isFileOpen) {
-                    auto savePath = this->filePicker->GetPath();
-                    this->saveFile(savePath);
-                    this->hasFileBeenModified = false;
-                    SetTitle("Taskify");
-                    break;
-                }
+            }
+
+            if (this->isFileOpen) {
+                auto savePath = this->filePicker->GetPath();
+                this->saveFile(savePath);
+                this->hasFileBeenModified = false;
+                SetTitle("Taskify");
+                break;
             }
         }
 
         case SAVE_AS_MENU: {
-            if(this->unDoneTasks.empty() && this->doneTasks.empty()) {
+            if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
                 wxLogMessage("Nessuna task nella lista, niente da salvare!");
             } else {
                 wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
-                   "XML files (*.xml)|*.xml", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+                                            "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-                if(saveFileDialog.ShowModal() == wxID_OK) {
+                if (saveFileDialog.ShowModal() == wxID_OK) {
                     wxString newPath = saveFileDialog.GetPath();
                     this->filePicker->SetPath(newPath);
                     this->saveFile(newPath);
@@ -321,27 +374,27 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
     if (this->hasFileBeenModified) {
         if (wxMessageBox(_("Ci sono delle modifiche non salvate! Procedere?"), _("Confermare"),
-                         wxICON_QUESTION | wxYES_NO, this) == wxNO )
+                         wxICON_QUESTION | wxYES_NO, this) == wxNO)
             return;
     }
     this->openFile(this->filePicker->GetPath());
 }
 
 void MainFrame::OnClose(wxCloseEvent &event) {
-    if(hasFileBeenModified) {
+    if (hasFileBeenModified) {
         int response = wxMessageBox(
             "Vuoi salvare le modifiche prima di uscire?",
             "Conferma chiusura",
             wxYES_NO | wxCANCEL | wxICON_QUESTION,
             this);
 
-        if(response == wxYES) {
+        if (response == wxYES) {
             auto savePath = this->filePicker->GetPath();
             this->saveFile(savePath);
             event.Skip();
-        } else if(response == wxNO) {
+        } else if (response == wxNO) {
             event.Skip();
-        } else if(response == wxCANCEL){
+        } else if (response == wxCANCEL) {
             event.Veto();
         }
     } else {
@@ -362,7 +415,7 @@ void MainFrame::openFile(const wxString &fileName) {
             auto *readTask = new TaskPanel(scrolledWindow, wxString::FromUTF8(std::get<0>(task).c_str()),
                                            wxString::FromUTF8(std::get<1>(task).c_str()));
 
-            if(std::get<2>(task)) {
+            if (std::get<2>(task)) {
                 this->doneTasks.push_back(readTask);
             } else {
                 this->unDoneTasks.push_back(readTask);
@@ -395,7 +448,7 @@ void MainFrame::openFile(const wxString &fileName) {
 
 void MainFrame::saveFile(const wxString &fileName) {
     // Genero tasklist dalla lista delle task;
-    std::vector<std::tuple<std::string, std::string, bool>> currentTasklist;
+    std::vector<std::tuple<std::string, std::string, bool> > currentTasklist;
     for (auto ut: unDoneTasks) {
         std::tuple<std::string, std::string, bool> tmpTask;
         std::get<0>(tmpTask) = ut->getTaskTitle().ToUTF8().data();

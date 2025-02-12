@@ -1,10 +1,7 @@
-//
-// Created by giacomo on 18/07/24.
-//
-
 #ifndef TASKPANEL_H
 #define TASKPANEL_H
 
+#include <iostream>
 #include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/panel.h>
@@ -36,6 +33,31 @@ public:
 
     wxString getTaskDescription() const {
         return taskDescription;
+    }
+
+    void setTaskTitle(const wxString &task_title) {
+        auto sizer = this->GetSizer();
+        wxSizerItem* item = sizer->GetItem(1);
+        auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
+        if (taskBtn) {
+            taskBtn->SetLabel(task_title);
+        }
+        taskTitle = task_title;
+    }
+
+    void setTaskDescription(const wxString &task_description) {
+        taskDescription = task_description;
+    }
+
+    void setTaskColour(const wxColour &cl) const {
+        auto sizer = this->GetSizer();
+        wxSizerItem* item = sizer->GetItem(1);
+        if (item) {
+            auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
+            if (taskBtn) {
+                taskBtn->SetBackgroundColour(cl);
+            }
+        }
     }
 
 private:
