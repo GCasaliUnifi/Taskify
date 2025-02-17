@@ -13,7 +13,13 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
     this->checkBox = new wxCheckBox(this, wxID_ANY, "");
     this->checkBox->Bind(wxEVT_CHECKBOX, &TaskPanel::OnTaskEvent, this);
 
-    auto * taskButton = new wxButton(this, TASK_BUTTON, title, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+    wxString buttonLabel = title;
+    if (buttonLabel.length() > 29) {
+        buttonLabel.Truncate(29);
+        buttonLabel.Append("...");
+    }
+
+    auto * taskButton = new wxButton(this, TASK_BUTTON, buttonLabel, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
     taskButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
     
     auto * deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);

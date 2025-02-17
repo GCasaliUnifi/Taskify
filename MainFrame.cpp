@@ -206,6 +206,11 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
                 int answer = wxMessageBox("Delete task?", "Confirm", wxYES_NO | wxICON_ERROR, this);
                 if (answer == wxYES) {
+                    if (selectedTask) {
+                        selectedTask->setTaskColour(wxColour(53, 53, 53));
+                        selectedTask = nullptr;
+                    }
+
                     if (!callerTask->isChecked()) {
                         auto it = std::find(unDoneTasks.begin(), unDoneTasks.end(), callerTask);
                         if (it != unDoneTasks.end()) {
@@ -242,10 +247,6 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     this->descriptionBox->Clear();
                     this->descriptionBox->SetHint(wxT("Selezionare task..."));
                     modifyTaskButton->Disable();
-                    if (selectedTask) {
-                        selectedTask->setTaskColour(wxColour(53, 53, 53));
-                        selectedTask = nullptr;
-                    }
                 }
             }
 
