@@ -18,6 +18,8 @@
 #include <wx/msgdlg.h>
 #include <wx/dialog.h>
 #include <wx/statbox.h>
+#include <wx/log.h>
+#include <wx/msgdlg.h>
 
 #include "TaskPanel.h"
 #include "XMLParser.h"

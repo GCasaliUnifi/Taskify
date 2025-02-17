@@ -9,6 +9,7 @@
 #include <utility>
 #include <wx/xml/xml.h>
 
+
 class XMLParser {
 public:
     XMLParser() = default;
@@ -17,15 +18,11 @@ public:
     }
 
     bool openFile(const wxString& fileName) {
-        wxLogNull logNo; // Disabilita temporaneamente wxLog
         if(tasksFile.Load(fileName)) {
             if(tasksFile.GetRoot()->GetName() != "tasklist") {
-                wxMessageBox("Il file selezionato non è un file valido di tasks!", "Attenzione!", wxOK | wxICON_INFORMATION);
                 return false;
             }
             return true;
-        } else {
-            wxMessageBox(wxT("Il file selezionato non è un file XML valido!"), "Errore!", wxOK | wxICON_ERROR);
         }
 
         return false;

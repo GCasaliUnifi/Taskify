@@ -454,6 +454,7 @@ void MainFrame::openFile(const wxString &fileName) {
         scrolledWindow->Layout();
         this->Refresh();
     } else {
+        wxMessageBox(wxT("Il file selezionato non è un file XML valido!"), "Errore!", wxOK | wxICON_ERROR);
         this->filePicker->SetPath("");
     }
 }

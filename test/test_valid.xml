@@ -1,0 +1,10 @@
+<tasklist>
+    <task completed="false">
+        <title>Task 1</title>
+        <desc>Descrizione 1</desc>
+    </task>
+    <task completed="true">
+        <title>Task 2</title>
+        <desc>Descrizione 2</desc>
+    </task>
+</tasklist>
