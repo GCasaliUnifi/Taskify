@@ -5,7 +5,6 @@
 #ifndef XMLPARSER_H
 #define XMLPARSER_H
 
-#include <iostream>
 #include <vector>
 #include <utility>
 #include <wx/xml/xml.h>

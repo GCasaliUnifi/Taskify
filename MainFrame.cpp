@@ -1,5 +1,3 @@
-// TODO implementa pulsante di modifica task
-
 #include "MainFrame.h"
 
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
@@ -169,6 +167,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
                     this->unDoneTasks.push_back(newTask);
                     tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+                    scrolledWindow->FitInside();
                     scrolledWindow->Layout();
 
                     if (!this->hasFileBeenModified) {
@@ -176,7 +175,10 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                         SetTitle("* " + GetTitle());
                     }
 
-                    selectedTask = nullptr;
+                    if (selectedTask) {
+                        selectedTask->setTaskColour(wxColour(53, 53, 53));
+                        selectedTask = nullptr;
+                    }
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -226,24 +228,27 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                         }
                     }
 
-                    if (!this->hasFileBeenModified) {
-                        this->hasFileBeenModified = true;
-                        SetTitle("* " + GetTitle());
+                    if (!isFileOpen && this->tasksSizer->GetItemCount() == 0) {
+                        this->hasFileBeenModified = false;
+                        SetTitle("Taskify");
+                    } else {
+                        if (!this->hasFileBeenModified) {
+                            this->hasFileBeenModified = true;
+                            SetTitle("* " + GetTitle());
+                        }
                     }
-
 
                     this->titleBox->Clear();
                     this->descriptionBox->Clear();
                     this->descriptionBox->SetHint(wxT("Selezionare task..."));
                     modifyTaskButton->Disable();
-                    selectedTask = nullptr;
+                    if (selectedTask) {
+                        selectedTask->setTaskColour(wxColour(53, 53, 53));
+                        selectedTask = nullptr;
+                    }
                 }
             }
 
-            /* FIXME se nessun file è stato aperto e il task list viene svuotato, allora il file non dovrebbe
-             *  essere considerato modificato (hasFileBeenModified = false), altrimenti chiede conferme di chiusura e di
-             *  salvare progressi inesistenti.
-            */
             break;
         }
 
@@ -262,9 +267,8 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
             titleCtrl->SetHint(oldTitle);
             dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
 
-            auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1),
+            auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, oldDescr, wxDefaultPosition, wxSize(400, -1),
                                             wxTE_MULTILINE);
-            descrCtrl->SetHint(oldDescr);
             dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
 
             auto buttonSizer = modTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
@@ -382,20 +386,24 @@ void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
 
 void MainFrame::OnClose(wxCloseEvent &event) {
     if (hasFileBeenModified) {
-        int response = wxMessageBox(
-            "Vuoi salvare le modifiche prima di uscire?",
-            "Conferma chiusura",
-            wxYES_NO | wxCANCEL | wxICON_QUESTION,
-            this);
+        if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
+            wxLogMessage("Nessuna task nella lista, niente da salvare!");
+        } else {
+            int response = wxMessageBox(
+                "Vuoi salvare le modifiche prima di uscire?",
+                "Conferma chiusura",
+                wxYES_NO | wxCANCEL | wxICON_QUESTION,
+                this);
 
-        if (response == wxYES) {
-            auto savePath = this->filePicker->GetPath();
-            this->saveFile(savePath);
-            event.Skip();
-        } else if (response == wxNO) {
-            event.Skip();
-        } else if (response == wxCANCEL) {
-            event.Veto();
+            if (response == wxYES) {
+                auto savePath = this->filePicker->GetPath();
+                this->saveFile(savePath);
+                event.Skip();
+            } else if (response == wxNO) {
+                event.Skip();
+            } else if (response == wxCANCEL) {
+                event.Veto();
+            }
         }
     } else {
         event.Skip();
@@ -439,6 +447,7 @@ void MainFrame::openFile(const wxString &fileName) {
         this->descriptionBox->SetHint(wxT("Selezionare task..."));
 
         tasksSizer->Layout();
+        scrolledWindow->FitInside();
         scrolledWindow->Layout();
         this->Refresh();
     } else {
@@ -467,7 +476,6 @@ void MainFrame::saveFile(const wxString &fileName) {
 
     this->xmlParser.setTaskList(currentTasklist);
     this->xmlParser.serializeXML();
-    // if() .. {}
     this->xmlParser.saveToFile(fileName);
     this->filePicker->SetPath(filePicker->GetPath());
 }
