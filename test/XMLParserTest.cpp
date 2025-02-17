@@ -2,6 +2,11 @@
 #include "../src/XMLParser.h"
 #include <wx/wx.h>
 
+// Locazioni assolute dei miei file, cambiare queste per cambiare file test.
+const wxString invalidFile = "/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_invalid.xml";
+const wxString validFile = "/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_valid.xml";
+const wxString outputFile = "/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_output.xml";
+
 class XMLParserTest : public ::testing::Test {
 protected:
     XMLParser parser;
@@ -17,15 +22,15 @@ protected:
 };
 
 TEST_F(XMLParserTest, OpenValidFile) {
-    EXPECT_TRUE(parser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_valid.xml"));
+    EXPECT_TRUE(parser.openFile(validFile));
 }
 
 TEST_F(XMLParserTest, OpenInvalidFile) {
-    EXPECT_FALSE(parser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_invalid.xml"));
+    EXPECT_FALSE(parser.openFile(invalidFile));
 }
 
 TEST_F(XMLParserTest, ParseXMLCorrectly) {
-    EXPECT_TRUE(parser.openFile("/home/giacomo/Scrivania/UNIFI/1_anno/Taskify/test/test_valid.xml"));
+    EXPECT_TRUE(parser.openFile(validFile));
 
     parser.parseXML();
     auto tasks = parser.getTaskList();
@@ -38,16 +43,16 @@ TEST_F(XMLParserTest, ParseXMLCorrectly) {
 
 TEST_F(XMLParserTest, SerializeXML) {
     parser.serializeXML();
-    EXPECT_TRUE(parser.saveToFile("../test/test_output.xml"));
+    EXPECT_TRUE(parser.saveToFile(outputFile));
 
     XMLParser newParser;
-    EXPECT_TRUE(newParser.openFile("../test/test_output.xml"));
+    EXPECT_TRUE(newParser.openFile(outputFile));
     newParser.parseXML();
     auto tasks = newParser.getTaskList();
 
     ASSERT_EQ(tasks.size(), 2);
     EXPECT_EQ(std::get<0>(tasks[0]), "Task 1");
-    EXPECT_FALSE(std::get<2>(tasks[0]));  // Task 1 non è completato
+    EXPECT_FALSE(std::get<2>(tasks[0]));  // Task 1 test_output non è completed=true
 }
 
 TEST_F(XMLParserTest, AddTask) {
