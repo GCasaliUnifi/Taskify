@@ -1,7 +1,6 @@
 #ifndef TASKPANEL_H
 #define TASKPANEL_H
 
-#include <iostream>
 #include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/panel.h>

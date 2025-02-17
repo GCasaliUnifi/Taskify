@@ -338,8 +338,9 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
         case SAVE_MENU: {
             if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
-                wxLogMessage("Nessuna task nella lista, niente da salvare!");
-                break;
+                int answer = wxMessageBox("Nessuna task, salvare comunque?", "Conferma", wxYES_NO | wxICON_ERROR, this);
+                if (answer != wxYES)
+                    break;
             }
 
             if (this->isFileOpen) {
@@ -353,20 +354,23 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 
         case SAVE_AS_MENU: {
             if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
-                wxLogMessage("Nessuna task nella lista, niente da salvare!");
-            } else {
-                wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
+                int answer = wxMessageBox("Nessuna task, salvare comunque?", "Conferma", wxYES_NO | wxICON_ERROR, this);
+                if (answer != wxYES)
+                    break;
+            }
+
+            wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
                                             "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-                if (saveFileDialog.ShowModal() == wxID_OK) {
-                    wxString newPath = saveFileDialog.GetPath();
-                    this->filePicker->SetPath(newPath);
-                    this->saveFile(newPath);
-                    this->hasFileBeenModified = false;
-                    SetTitle("Taskify");
-                    this->isFileOpen = true;
-                }
+            if (saveFileDialog.ShowModal() == wxID_OK) {
+                wxString newPath = saveFileDialog.GetPath();
+                this->filePicker->SetPath(newPath);
+                this->saveFile(newPath);
+                this->hasFileBeenModified = false;
+                SetTitle("Taskify");
+                this->isFileOpen = true;
             }
+
             break;
         }
 
@@ -378,32 +382,30 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
 void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
     if (this->hasFileBeenModified) {
         if (wxMessageBox(_("Ci sono delle modifiche non salvate! Procedere?"), _("Confermare"),
-                         wxICON_QUESTION | wxYES_NO, this) == wxNO)
+                         wxICON_QUESTION | wxYES_NO, this) == wxNO) {
+            wxYield();
             return;
+        }
     }
     this->openFile(this->filePicker->GetPath());
 }
 
 void MainFrame::OnClose(wxCloseEvent &event) {
     if (hasFileBeenModified) {
-        if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
-            wxLogMessage("Nessuna task nella lista, niente da salvare!");
-        } else {
-            int response = wxMessageBox(
+        int response = wxMessageBox(
                 "Vuoi salvare le modifiche prima di uscire?",
                 "Conferma chiusura",
                 wxYES_NO | wxCANCEL | wxICON_QUESTION,
                 this);
 
-            if (response == wxYES) {
-                auto savePath = this->filePicker->GetPath();
-                this->saveFile(savePath);
-                event.Skip();
-            } else if (response == wxNO) {
-                event.Skip();
-            } else if (response == wxCANCEL) {
-                event.Veto();
-            }
+        if (response == wxYES) {
+            auto savePath = this->filePicker->GetPath();
+            this->saveFile(savePath);
+            event.Skip();
+        } else if (response == wxNO) {
+            event.Skip();
+        } else if (response == wxCANCEL) {
+            event.Veto();
         }
     } else {
         event.Skip();
@@ -476,6 +478,9 @@ void MainFrame::saveFile(const wxString &fileName) {
 
     this->xmlParser.setTaskList(currentTasklist);
     this->xmlParser.serializeXML();
-    this->xmlParser.saveToFile(fileName);
+    if (this->xmlParser.saveToFile(fileName)) {
+        wxLogMessage("File salvato con successo!");
+        wxLog::FlushActive();
+    }
     this->filePicker->SetPath(filePicker->GetPath());
 }
