@@ -1,7 +1,3 @@
-//
-// Created by giacomo on 18/07/24.
-//
-
 #ifndef MAINFRAME_H
 #define MAINFRAME_H
 
@@ -27,7 +23,9 @@
 enum MENU_IDs {
     OPEN_FILE_MENU = wxID_HIGHEST + 1,
     SAVE_MENU,
-    SAVE_AS_MENU
+    SAVE_AS_MENU,
+    SHOW_COMPLETED_MENU,
+    CHANGE_THEME_MENU
 };
 
 class MainFrame : public wxFrame {

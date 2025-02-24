@@ -14,6 +14,12 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     fileMenu->Append(wxID_EXIT, wxT("&Exit\tEsc"));
     topMenuBar->Append(fileMenu, wxT("File"));
 
+    auto *viewMenu = new wxMenu();
+    viewMenu->AppendCheckItem(SHOW_COMPLETED_MENU, "Mostra task completati");
+    viewMenu->AppendSeparator();
+    viewMenu->AppendCheckItem(CHANGE_THEME_MENU, "Tema Scuro");
+    topMenuBar->Append(viewMenu, "View");
+
     auto *helpMenu = new wxMenu();
     helpMenu->Append(wxID_ABOUT, wxT("About"));
     topMenuBar->Append(helpMenu, wxT("Help"));
