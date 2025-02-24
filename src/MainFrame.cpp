@@ -16,6 +16,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
 
     auto *viewMenu = new wxMenu();
     viewMenu->AppendCheckItem(SHOW_COMPLETED_MENU, "Mostra task completati");
+    viewMenu->GetMenuItems().front()->Check();
     viewMenu->AppendSeparator();
     viewMenu->AppendCheckItem(CHANGE_THEME_MENU, "Tema Scuro");
     topMenuBar->Append(viewMenu, "View");
@@ -381,6 +382,13 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             break;
         }
 
+        case SHOW_COMPLETED_MENU: {
+            bool isChecked = event.IsChecked();
+            for (auto ts: doneTasks) {
+                ts->Show(isChecked);
+            }
+        }
+
         default:
             break;
     }
@@ -421,6 +429,7 @@ void MainFrame::OnClose(wxCloseEvent &event) {
 
 void MainFrame::openFile(const wxString &fileName) {
     if (this->xmlParser.openFile(fileName)) {
+
         this->xmlParser.parseXML();
         auto taskList = xmlParser.getTaskList();
 
