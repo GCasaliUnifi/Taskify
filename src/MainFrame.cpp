@@ -111,7 +111,7 @@ void MainFrame::OnTaskCheck(wxCommandEvent &event) {
             if (it != doneTasks.end()) {
                 auto sizer = scrolledWindow->GetSizer();
                 sizer->Detach(callerTask);
-                sizer->Insert(0, callerTask, 0, wxEXPAND | wxALL, 5);
+                sizer->Prepend(callerTask, 0, wxEXPAND | wxALL, 5);
                 scrolledWindow->Layout();
 
                 doneTasks.erase(it);
@@ -173,7 +173,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 if (!titleCtrl->IsEmpty()) {
                     auto newTask = new TaskPanel(scrolledWindow, titleCtrl->GetValue(), descrCtrl->GetValue());
                     this->unDoneTasks.push_back(newTask);
-                    tasksSizer->Add(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
+                    tasksSizer->Prepend(newTask, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 5);
                     scrolledWindow->FitInside();
                     scrolledWindow->Layout();
 
@@ -182,10 +182,15 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                         SetTitle("* " + GetTitle());
                     }
 
-                    if (selectedTask) {
+                    if (selectedTask)
                         selectedTask->setTaskColour(wxColour(53, 53, 53));
-                        selectedTask = nullptr;
-                    }
+
+                    selectedTask = newTask;
+                    this->titleBox->SetValue(newTask->getTaskTitle());
+                    this->descriptionBox->SetValue(newTask->getTaskDescription());
+                    newTask->setTaskColour(wxColour(0, 83, 53));
+                    modifyTaskButton->Enable();
+
                 } else {
                     wxLogMessage("Impossibile aggiungere task senza titolo!");
                 }
@@ -204,7 +209,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     selectedTask->setTaskColour(wxColour(53, 53, 53));
                 }
                 selectedTask = callerTask;
-                callerTask->setTaskColour(wxColour(0,83, 53));
+                callerTask->setTaskColour(wxColour(0, 83, 53));
             }
             break;
         }
@@ -368,7 +373,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             }
 
             wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
-                                            "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                                        "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
             if (saveFileDialog.ShowModal() == wxID_OK) {
                 wxString newPath = saveFileDialog.GetPath();
@@ -408,10 +413,10 @@ void MainFrame::OnFileChange(wxFileDirPickerEvent &event) {
 void MainFrame::OnClose(wxCloseEvent &event) {
     if (hasFileBeenModified) {
         int response = wxMessageBox(
-                "Vuoi salvare le modifiche prima di uscire?",
-                "Conferma chiusura",
-                wxYES_NO | wxCANCEL | wxICON_QUESTION,
-                this);
+            "Vuoi salvare le modifiche prima di uscire?",
+            "Conferma chiusura",
+            wxYES_NO | wxCANCEL | wxICON_QUESTION,
+            this);
 
         if (response == wxYES) {
             auto savePath = this->filePicker->GetPath();
@@ -429,7 +434,6 @@ void MainFrame::OnClose(wxCloseEvent &event) {
 
 void MainFrame::openFile(const wxString &fileName) {
     if (this->xmlParser.openFile(fileName)) {
-
         this->xmlParser.parseXML();
         auto taskList = xmlParser.getTaskList();
 
