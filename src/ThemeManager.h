@@ -26,14 +26,11 @@ class ThemeManager {
 public:
     static ThemeManager& GetInstance();
 
-    void SetDarkTheme(bool enable);
-    void ApplyThemeWindow(wxWindow *w);
-
+    void SetDarkTheme(bool darkThemeEnabled);
     const ThemeColors& GetCurrentTheme() const;
 
 private:
     ThemeManager();
-    void ApplyThemeToWindowRecursive(wxWindow* window, const ThemeColors& theme);
 
     bool isDarkTheme;
     ThemeColors lightTheme;

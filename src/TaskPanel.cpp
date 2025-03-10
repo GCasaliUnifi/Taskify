@@ -12,7 +12,7 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
     this->taskTitle = title;
     this->taskDescription = description;
 
-    this->checkBox = new wxCheckBox(this, TASK_CHECKMARK, "");
+    this->checkBox = new wxCheckBox(this, wxID_ANY, "");
     this->checkBox->Bind(wxEVT_CHECKBOX, &TaskPanel::OnTaskEvent, this);
 
     wxString buttonLabel = title;

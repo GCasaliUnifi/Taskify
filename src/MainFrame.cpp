@@ -2,6 +2,10 @@
 
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
     nullptr, wxID_ANY, title, pos, size) {
+
+    auto isSysDark = wxSystemSettings::GetAppearance().IsSystemDark();
+    ThemeManager::GetInstance().SetDarkTheme(isSysDark);
+
     auto *verticalSizer = new wxBoxSizer(wxVERTICAL);
     auto *horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -18,7 +22,6 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     viewMenu->AppendCheckItem(SHOW_COMPLETED_MENU, "Mostra task completati");
     viewMenu->GetMenuItems().front()->Check();
     viewMenu->AppendSeparator();
-    viewMenu->AppendCheckItem(CHANGE_THEME_MENU, "Tema Scuro");
 
     topMenuBar->Append(viewMenu, "View");
 
@@ -44,8 +47,6 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     scrolledWindow->SetScrollRate(2, 10);
 
     this->filePicker = new wxFilePickerCtrl(this, wxID_ANY, "", "Selezionare un file XML", "XML files (*.xml)|*.xml");
-    // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("➕"));
-    // auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("🞥"));
     auto addTaskButton = new wxButton(this, ADD_TASK, wxString::FromUTF8("✚"));
 
     auto tmpFont = addTaskButton->GetFont();
@@ -70,6 +71,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     descriptionBox->SetHint(wxT("Selezionare task..."));
 
     modifyTaskButton = new wxButton(this, MODIFY_TASK, wxT("Modifica task"));
+    modifyTaskButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonBackground);
     modifyTaskButton->Disable();
 
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
@@ -92,12 +94,6 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->Bind(wxEVT_FILEPICKER_CHANGED, &MainFrame::OnFileChange, this);
     this->Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
 
-    auto isSysDark = wxSystemSettings::GetAppearance().IsSystemDark();
-    if (isSysDark) {
-        viewMenu->GetMenuItems().back()->Check();
-    }
-    ThemeManager::GetInstance().SetDarkTheme(isSysDark);
-    ThemeManager::GetInstance().ApplyThemeWindow(this);
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
@@ -227,7 +223,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 selectedTask = callerTask;
                 callerTask->setTaskColour(
                     ThemeManager::GetInstance().GetCurrentTheme().buttonSelected,
-                        ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
+                    ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
             }
             break;
         }
@@ -413,13 +409,6 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             for (auto ts: doneTasks) {
                 ts->Show(isChecked);
             }
-            break;
-        }
-
-        case CHANGE_THEME_MENU: {
-            bool isDark = event.IsChecked();
-            ThemeManager::GetInstance().SetDarkTheme(isDark);
-            ThemeManager::GetInstance().ApplyThemeWindow(this);
             break;
         }
 
