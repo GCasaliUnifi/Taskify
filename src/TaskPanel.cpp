@@ -4,13 +4,15 @@
 
 #include "TaskPanel.h"
 
+#include "ThemeManager.h"
+
 TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id, const wxPoint &pos, const wxSize &size)
     : wxPanel(parent, id, pos, size, wxBORDER_SUNKEN)
 {
     this->taskTitle = title;
     this->taskDescription = description;
 
-    this->checkBox = new wxCheckBox(this, wxID_ANY, "");
+    this->checkBox = new wxCheckBox(this, TASK_CHECKMARK, "");
     this->checkBox->Bind(wxEVT_CHECKBOX, &TaskPanel::OnTaskEvent, this);
 
     wxString buttonLabel = title;
@@ -23,7 +25,7 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
     taskButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
     
     auto * deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
-    deleteButton->SetBackgroundColour(wxColour(163,22, 33));
+    deleteButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonDelete);
     deleteButton->SetForegroundColour(wxColour(255,255,255));
     deleteButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
     deleteButton->Fit();

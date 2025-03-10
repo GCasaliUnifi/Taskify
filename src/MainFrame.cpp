@@ -19,6 +19,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     viewMenu->GetMenuItems().front()->Check();
     viewMenu->AppendSeparator();
     viewMenu->AppendCheckItem(CHANGE_THEME_MENU, "Tema Scuro");
+
     topMenuBar->Append(viewMenu, "View");
 
     auto *helpMenu = new wxMenu();
@@ -50,8 +51,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto tmpFont = addTaskButton->GetFont();
     tmpFont.SetPointSize(15);
     addTaskButton->SetFont(tmpFont);
-    addTaskButton->SetBackgroundColour(wxColour(77, 113, 0));
-    addTaskButton->SetForegroundColour(wxColour(255, 255, 255));
+    addTaskButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonAdd);
+    addTaskButton->SetForegroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
 
     leftSizer->Add(filePicker, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
     leftSizer->Add(scrolledWindow, 1, wxEXPAND, 0);
@@ -61,6 +62,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto *titleSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Titolo"));
     titleBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     titleBox->SetHint(wxT("Selezionare task..."));
+
 
     auto *descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
     descriptionBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
@@ -89,6 +91,13 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->Bind(wxEVT_MENU, &MainFrame::OnMenuItemClick, this);
     this->Bind(wxEVT_FILEPICKER_CHANGED, &MainFrame::OnFileChange, this);
     this->Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
+
+    auto isSysDark = wxSystemSettings::GetAppearance().IsSystemDark();
+    if (isSysDark) {
+        viewMenu->GetMenuItems().back()->Check();
+    }
+    ThemeManager::GetInstance().SetDarkTheme(isSysDark);
+    ThemeManager::GetInstance().ApplyThemeWindow(this);
 }
 
 void MainFrame::OnTaskCheck(wxCommandEvent &event) {
@@ -165,7 +174,7 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
 
                     // Se nessun file è selezionato, il primo (e unico) elemento nel sizer è un wxStaticText.
                     // Con questo wxDynamicCast controllo se sono in questa situazione e in tal caso svuoto il Sizer.
-                    if (auto text = wxDynamicCast(win, wxStaticText)) {
+                    if (wxDynamicCast(win, wxStaticText)) {
                         tasksSizer->Clear(true);
                     }
                 }
@@ -183,12 +192,17 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                     }
 
                     if (selectedTask)
-                        selectedTask->setTaskColour(wxColour(53, 53, 53));
+                        selectedTask->setTaskColour(
+                            ThemeManager::GetInstance().GetCurrentTheme().buttonBackground,
+                            ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
 
                     selectedTask = newTask;
                     this->titleBox->SetValue(newTask->getTaskTitle());
                     this->descriptionBox->SetValue(newTask->getTaskDescription());
-                    newTask->setTaskColour(wxColour(0, 83, 53));
+                    newTask->setTaskColour(
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonSelected,
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
+
                     modifyTaskButton->Enable();
 
                 } else {
@@ -206,20 +220,27 @@ void MainFrame::OnTaskButtonClick(wxCommandEvent &event) {
                 modifyTaskButton->Enable();
 
                 if (selectedTask) {
-                    selectedTask->setTaskColour(wxColour(53, 53, 53));
+                    selectedTask->setTaskColour(
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonBackground,
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
                 }
                 selectedTask = callerTask;
-                callerTask->setTaskColour(wxColour(0, 83, 53));
+                callerTask->setTaskColour(
+                    ThemeManager::GetInstance().GetCurrentTheme().buttonSelected,
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
             }
             break;
         }
 
         case DELETE_BUTTON: {
             if (auto *callerTask = dynamic_cast<TaskPanel *>(obj)) {
-                int answer = wxMessageBox("Delete task?", "Confirm", wxYES_NO | wxICON_ERROR, this);
+                int answer = wxMessageBox("Eliminare task?", "Conferma", wxYES_NO | wxICON_ERROR, this);
                 if (answer == wxYES) {
                     if (selectedTask) {
-                        selectedTask->setTaskColour(wxColour(53, 53, 53));
+                        selectedTask->setTaskColour(
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonSelected,
+                        ThemeManager::GetInstance().GetCurrentTheme().buttonForeground);
+
                         selectedTask = nullptr;
                     }
 
@@ -392,6 +413,14 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             for (auto ts: doneTasks) {
                 ts->Show(isChecked);
             }
+            break;
+        }
+
+        case CHANGE_THEME_MENU: {
+            bool isDark = event.IsChecked();
+            ThemeManager::GetInstance().SetDarkTheme(isDark);
+            ThemeManager::GetInstance().ApplyThemeWindow(this);
+            break;
         }
 
         default:

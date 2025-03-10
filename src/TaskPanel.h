@@ -10,6 +10,7 @@
 
 enum BUTTON_IDs {
     TASK_BUTTON = wxID_HIGHEST + 1,
+    TASK_CHECKMARK,
     DELETE_BUTTON,
     ADD_TASK,
     MODIFY_TASK
@@ -48,13 +49,14 @@ public:
         taskDescription = task_description;
     }
 
-    void setTaskColour(const wxColour &cl) const {
+    void setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const {
         auto sizer = this->GetSizer();
         wxSizerItem* item = sizer->GetItem(1);
         if (item) {
             auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
             if (taskBtn) {
-                taskBtn->SetBackgroundColour(cl);
+                taskBtn->SetBackgroundColour(bgCl);
+                taskBtn->SetForegroundColour(fgCl);
             }
         }
     }

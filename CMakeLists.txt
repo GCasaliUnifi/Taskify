@@ -12,6 +12,8 @@ add_library(core
         src/MainFrame.cpp src/MainFrame.h
         src/TaskPanel.cpp src/TaskPanel.h
         src/XMLParser.h
+        src/ThemeManager.cpp
+        src/ThemeManager.h
 )
 
 target_link_libraries(Taskify PRIVATE core ${wxWidgets_LIBRARIES})

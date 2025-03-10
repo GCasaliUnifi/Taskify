@@ -16,9 +16,11 @@
 #include <wx/statbox.h>
 #include <wx/log.h>
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
 
 #include "TaskPanel.h"
 #include "XMLParser.h"
+#include "ThemeManager.h"
 
 enum MENU_IDs {
     OPEN_FILE_MENU = wxID_HIGHEST + 1,
