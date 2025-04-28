@@ -479,6 +479,7 @@ void MainFrame::openFile(const wxString &fileName) {
             i->checkTask();
         }
 
+        this->selectedTask = nullptr;
         this->isFileOpen = true;
         this->hasFileBeenModified = false;
         SetTitle("Taskify");
