@@ -12,6 +12,7 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     auto *topMenuBar = new wxMenuBar();
 
     auto *fileMenu = new wxMenu();
+    fileMenu->Append(NEW_FILE, wxT("&New file\tCtrl-N"));
     fileMenu->Append(OPEN_FILE_MENU, wxT("&Open file\tCtrl-O"));
     fileMenu->Append(SAVE_MENU, wxT("&Save file\tCtrl-S"));
     fileMenu->Append(SAVE_AS_MENU, wxT("&Save file as..\tCtrl-Shift-S"));
@@ -344,6 +345,33 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             wxMessageBox(
                 "Sviluppatore: giacomo.casali@edu.unifi.it\n\nCodice Sorgente:\nhttps://github.com/GCasaliUnifi/Taskify",
                 "About Taskify", wxOK | wxICON_INFORMATION);
+            break;
+        }
+
+
+        case NEW_FILE: {
+            if (this->hasFileBeenModified) {
+                if (wxMessageBox(_("Ci sono delle modifiche non salvate! Procedere?"), _("Confermare"),
+                                 wxICON_QUESTION | wxYES_NO, this) == wxNO)
+                {
+                        wxYield();
+                        return;
+                }
+            }
+
+            this->unDoneTasks.clear();
+            this->doneTasks.clear();
+            this->tasksSizer->Clear(true);
+
+            this->selectedTask = nullptr;
+            this->isFileOpen = false;
+            this->hasFileBeenModified = false;
+            SetTitle("Taskify");
+
+            this->titleBox->Clear();
+            this->descriptionBox->Clear();
+            this->filePicker->SetPath(wxEmptyString);
+
             break;
         }
 

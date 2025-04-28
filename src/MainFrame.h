@@ -23,7 +23,8 @@
 #include "ThemeManager.h"
 
 enum MENU_IDs {
-    OPEN_FILE_MENU = wxID_HIGHEST + 1,
+    NEW_FILE = wxID_HIGHEST + 1,
+    OPEN_FILE_MENU,
     SAVE_MENU,
     SAVE_AS_MENU,
     SHOW_COMPLETED_MENU,
