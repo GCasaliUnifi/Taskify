@@ -39,7 +39,13 @@ public:
         wxSizerItem* item = sizer->GetItem(1);
         auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
         if (taskBtn) {
-            taskBtn->SetLabel(task_title);
+            auto btnLabel = task_title;
+            if (btnLabel.length() > 29) {
+                btnLabel.Truncate(29);
+                btnLabel.Append("...");
+            }
+            taskBtn->SetLabel(btnLabel);
+
         }
         taskTitle = task_title;
     }
