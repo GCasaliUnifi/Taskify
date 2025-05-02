@@ -5,6 +5,9 @@ This application allows the user to create To-Do lists, save them as XML files a
 Each task can be marked as Done and this status will be saved in the file so it will be the same when reopening the file.
 When creating a Task the user can specify a simple Title and a Description for easy organization.
 
+![immagine](https://github.com/user-attachments/assets/33457461-a6da-4334-b383-798e2d227df1)
+
+
 ## External libraries
 The GUI of this program has been created with the help of the wxWidgets library for C++.
 Also the GTest framework has been used to implement unit tests.
