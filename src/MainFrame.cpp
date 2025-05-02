@@ -366,6 +366,7 @@ void MainFrame::OnMenuItemClick(wxCommandEvent &event) {
             this->selectedTask = nullptr;
             this->isFileOpen = false;
             this->hasFileBeenModified = false;
+            this->modifyTaskButton->Disable();
             SetTitle("Taskify");
 
             this->titleBox->Clear();
