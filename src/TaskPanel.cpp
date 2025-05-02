@@ -23,6 +23,7 @@ TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &de
 
     auto * taskButton = new wxButton(this, TASK_BUTTON, buttonLabel, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
     taskButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
+    taskButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonBackground);
     
     auto * deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
     deleteButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonDelete);
