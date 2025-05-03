@@ -21,50 +21,12 @@ public:
               const wxSize &size = wxDefaultSize);
 
     bool isChecked();
-
-    void checkTask() {
-        this->checkBox->SetValue(true);
-    }
-
-    wxString getTaskTitle() const {
-        return taskTitle;
-    }
-
-    wxString getTaskDescription() const {
-        return taskDescription;
-    }
-
-    void setTaskTitle(const wxString &task_title) {
-        auto sizer = this->GetSizer();
-        wxSizerItem* item = sizer->GetItem(1);
-        auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
-        if (taskBtn) {
-            auto btnLabel = task_title;
-            if (btnLabel.length() > 29) {
-                btnLabel.Truncate(29);
-                btnLabel.Append("...");
-            }
-            taskBtn->SetLabel(btnLabel);
-
-        }
-        taskTitle = task_title;
-    }
-
-    void setTaskDescription(const wxString &task_description) {
-        taskDescription = task_description;
-    }
-
-    void setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const {
-        auto sizer = this->GetSizer();
-        wxSizerItem* item = sizer->GetItem(1);
-        if (item) {
-            auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
-            if (taskBtn) {
-                taskBtn->SetBackgroundColour(bgCl);
-                taskBtn->SetForegroundColour(fgCl);
-            }
-        }
-    }
+    void checkTask();
+    wxString getTaskTitle() const;
+    wxString getTaskDescription() const;
+    void setTaskTitle(const wxString &task_title);
+    void setTaskDescription(const wxString &task_description);
+    void setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const;
 
 private:
     void OnTaskEvent(wxCommandEvent& event);

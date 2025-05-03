@@ -46,3 +46,47 @@ void TaskPanel::OnTaskEvent(wxCommandEvent &event) {
     event.SetEventObject(this);
     wxPostEvent(GetParent(), event);
 }
+
+void TaskPanel::checkTask() {
+    this->checkBox->SetValue(true);
+}
+
+wxString TaskPanel::getTaskTitle() const {
+    return taskTitle;
+}
+
+wxString TaskPanel::getTaskDescription() const {
+    return taskDescription;
+}
+
+void TaskPanel::setTaskTitle(const wxString &task_title) {
+    auto sizer = this->GetSizer();
+    wxSizerItem* item = sizer->GetItem(1);
+    auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
+    if (taskBtn) {
+        auto btnLabel = task_title;
+        if (btnLabel.length() > 29) {
+            btnLabel.Truncate(29);
+            btnLabel.Append("...");
+        }
+        taskBtn->SetLabel(btnLabel);
+
+    }
+    this->taskTitle = task_title;
+}
+
+void TaskPanel::setTaskDescription(const wxString &task_description) {
+    taskDescription = task_description;
+}
+
+void TaskPanel::setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const {
+    auto sizer = this->GetSizer();
+    wxSizerItem* item = sizer->GetItem(1);
+    if (item) {
+        auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
+        if (taskBtn) {
+            taskBtn->SetBackgroundColour(bgCl);
+            taskBtn->SetForegroundColour(fgCl);
+        }
+    }
+}
