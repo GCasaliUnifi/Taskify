@@ -9,12 +9,16 @@ include(${wxWidgets_USE_FILE})
 add_executable(Taskify src/main.cpp)
 
 add_library(core
-        src/MainFrame.cpp src/MainFrame.h
-        src/TaskPanel.cpp src/TaskPanel.h
-        src/XMLParser.h
-        src/ThemeManager.cpp
-        src/ThemeManager.h
-        src/XMLParser.cpp
+        src/View/MainFrame.cpp src/View/MainFrame.h
+        src/View/TaskPanel.cpp src/View/TaskPanel.h
+        src/Model/XMLParser.h
+        src/View/ThemeManager.cpp
+        src/View/ThemeManager.h
+        src/Model/XMLParser.cpp
+        src/Model/Task.cpp
+        src/Model/Task.h
+        src/Controller/Controller.cpp
+        src/Controller/Controller.h
 )
 
 target_link_libraries(Taskify PRIVATE core ${wxWidgets_LIBRARIES})

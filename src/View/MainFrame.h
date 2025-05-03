@@ -19,7 +19,7 @@
 #include <wx/settings.h>
 
 #include "TaskPanel.h"
-#include "XMLParser.h"
+#include "../Model/XMLParser.h"
 #include "ThemeManager.h"
 
 enum MENU_IDs {

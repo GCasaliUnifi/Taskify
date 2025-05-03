@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/XMLParser.h"
+#include "../src/Model/XMLParser.h"
 #include <wx/wx.h>
 
 // Locazioni assolute dei miei file, cambiare queste per cambiare file test.

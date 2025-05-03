@@ -1,9 +1,4 @@
-//
-// Created by giacomo on 18/07/24.
-//
-
 #include "TaskPanel.h"
-
 #include "ThemeManager.h"
 
 TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id, const wxPoint &pos, const wxSize &size)

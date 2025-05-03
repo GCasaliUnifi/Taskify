@@ -1,6 +1,6 @@
 #include <wx/wx.h>
 
-#include "MainFrame.h"
+#include "View/MainFrame.h"
 
 class Taskify : public wxApp {
 public:

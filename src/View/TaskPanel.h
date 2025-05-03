@@ -6,7 +6,6 @@
 #include <wx/panel.h>
 #include <wx/sizer.h>
 
-#include "TaskPanel.h"
 
 enum BUTTON_IDs {
     TASK_BUTTON = wxID_HIGHEST + 1,
