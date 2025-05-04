@@ -4,11 +4,27 @@ XMLParser::XMLParser(const wxString &fileName) {
     tasksFile.Load(fileName);
 }
 
-bool XMLParser::openFile(const wxString &fileName) {
-    if (tasksFile.Load(fileName)) {
+void XMLParser::addTask(const std::string& title, const std::string& descr) {
+    taskList.emplace_back(std::make_unique<Task>(title,descr));
+}
+
+void XMLParser::clearTasks() {
+    this->taskList.clear();
+}
+
+Task* XMLParser::getTaskByIndex(const int index) const {
+    return this->taskList[index].get();
+}
+
+
+bool XMLParser::loadFromFile(const std::string &filePath) {
+    if (tasksFile.Load(filePath)) {
         if (tasksFile.GetRoot()->GetName() != "tasklist") {
+            // Messaggio qui xml non valido
             return false;
         }
+
+        parseXML();
         return true;
     }
 
@@ -17,12 +33,14 @@ bool XMLParser::openFile(const wxString &fileName) {
 
 void XMLParser::parseXML() {
     this->taskList.clear();
+
     // Prendi il primo figlio
     auto child = tasksFile.GetRoot()->GetChildren();
     while (child) {
         // loop per tutti i figli della radice
         if (child->GetName() == "task") {
-            std::tuple<std::string, std::string, bool> tmpTask;
+            std::string title;
+            std::string description;
             bool taskCompleted = false;
 
             auto attr = child->GetAttributes(); // Ritorna un puntatore al primo attributo del nodo
@@ -30,18 +48,17 @@ void XMLParser::parseXML() {
                 taskCompleted = (attr->GetValue() == "true");
             }
 
-            std::get<2>(tmpTask) = taskCompleted;
-
             auto inside = child->GetChildren();
             while (inside) {
                 if (inside->GetName() == "title") {
-                    std::get<0>(tmpTask) = std::string(inside->GetNodeContent().ToUTF8().data());
+                    title = std::string(inside->GetNodeContent().ToUTF8().data());
                 } else if (inside->GetName() == "desc") {
-                    std::get<1>(tmpTask) = std::string(inside->GetNodeContent().ToUTF8().data());
+                    description = std::string(inside->GetNodeContent().ToUTF8().data());
                 }
                 inside = inside->GetNext();
             }
-            this->taskList.push_back(tmpTask);
+            auto tmp = new Task(title, description, taskCompleted);
+            this->taskList.push_back(std::make_unique<Task>(*tmp));
             delete inside;
         }
         child = child->GetNext();
@@ -50,12 +67,12 @@ void XMLParser::parseXML() {
     delete child;
 }
 
-void XMLParser::serializeXML() {
+/* void XMLParser::serializeXML() {
     auto root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, "tasklist");
     this->tasksFile.SetRoot(root);
 
     // Structured binding disponibile da C++17
-    for (const auto &[fst, snd, completed]: taskList) {
+    for (const auto &[fst, snd, completed]: oldTaskList) {
         // Radice di ogni task "<task completed="true/false"></task>"
         auto taskNode = new wxXmlNode(wxXML_ELEMENT_NODE, "task");
         taskNode->AddAttribute("completed", completed ? "true" : "false");
@@ -77,24 +94,21 @@ void XMLParser::serializeXML() {
 
         root->AddChild(taskNode);
     }
-}
+} */
 
-bool XMLParser::saveToFile(const wxString &fileName) const {
-    if (this->tasksFile.Save(fileName)) {
-        return true;
-    }
+bool XMLParser::saveToFile(const std::string &filePath) {
 
     return false;
 }
 
-void XMLParser::addToTaskList(const std::tuple<std::string, std::string, bool> &newTask) {
-    this->taskList.push_back(newTask);
-}
+// bool XMLParser::saveToFile(const wxString &fileName) const {
+//     if (this->tasksFile.Save(fileName)) {
+//         return true;
+//     }
+//
+//     return false;
+// }
 
-std::vector<std::tuple<std::string, std::string, bool> > XMLParser::getTaskList() const {
-    return taskList;
-}
-
-void XMLParser::setTaskList(const std::vector<std::tuple<std::string, std::string, bool> > &task_list) {
-    taskList = task_list;
+const std::vector<std::unique_ptr<Task>>& XMLParser::GetTasks() const {
+    return this->taskList;
 }

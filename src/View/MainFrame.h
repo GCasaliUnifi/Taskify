@@ -22,44 +22,28 @@
 #include "../Model/XMLParser.h"
 #include "ThemeManager.h"
 
-enum MENU_IDs {
+enum ELEMENTS_IDs {
     NEW_FILE = wxID_HIGHEST + 1,
-    OPEN_FILE_MENU,
-    SAVE_MENU,
-    SAVE_AS_MENU,
     SHOW_COMPLETED_MENU,
-    CHANGE_THEME_MENU
+    FILE_PICKER,
+    ADD_TASK,
+    TASK_COMPLETED
 };
 
 class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
-private:
-    void OnTaskCheck(wxCommandEvent& event);
-    void OnTaskButtonClick(wxCommandEvent& event);
-    void OnMenuItemClick(wxCommandEvent& event);
-    void OnFileChange(wxFileDirPickerEvent& event);
-    void OnClose(wxCloseEvent& close);
-    void openFile(const wxString& fileName);
-    void saveFile(const wxString& fileName);
+    void DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList) const;
 
+    void ResetFrame();
+private:
     wxScrolledWindow* scrolledWindow;
     wxBoxSizer * tasksSizer;
     wxTextCtrl* titleBox;
     wxTextCtrl* descriptionBox;
     wxButton * modifyTaskButton;
     wxFilePickerCtrl* filePicker;
-
-    TaskPanel * selectedTask = nullptr;
-
-    std::vector<TaskPanel *> doneTasks;
-    std::vector<TaskPanel *> unDoneTasks;
-
-    XMLParser xmlParser;
-
-    bool isFileOpen = false;
-    bool hasFileBeenModified = false;
 };
 
 

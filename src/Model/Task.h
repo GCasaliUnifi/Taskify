@@ -7,8 +7,7 @@
 class Task {
 public:
     Task();
-    Task(const std::string& title, const std::string& description,
-        const std::chrono::system_clock::time_point& dueDate, bool completed = false );
+    Task(const std::string& title, const std::string& description, bool completed = false );
 
     const std::string& GetTitle() const;
     const std::string& GetDescription() const;

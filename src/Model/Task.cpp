@@ -1,11 +1,9 @@
-#include "../Task.h"
+#include "Task.h"
 
-Task::Task(const std::string &title, const std::string &description,
-           const std::chrono::system_clock::time_point &dueDate, bool completed) {
+Task::Task(const std::string &title, const std::string &description, bool completed) {
 
     this->title = title;
     this->description = description;
-    this->dueDate = dueDate;
     this->isCompleted = completed;
 }
 

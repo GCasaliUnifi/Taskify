@@ -1,87 +1,51 @@
 #include "TaskPanel.h"
 #include "ThemeManager.h"
 
-TaskPanel::TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id, const wxPoint &pos, const wxSize &size)
-    : wxPanel(parent, id, pos, size, wxBORDER_SUNKEN)
+TaskPanel::TaskPanel(wxWindow *parent, const int taskIndex, bool isComplete, const wxString title)
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN), taskIndex(taskIndex)
 {
-    this->taskTitle = title;
-    this->taskDescription = description;
+    auto * taskSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    this->checkBox = new wxCheckBox(this, wxID_ANY, "");
-    this->checkBox->Bind(wxEVT_CHECKBOX, &TaskPanel::OnTaskEvent, this);
+    checkBox = new wxCheckBox(this, wxID_ANY, "");
+    checkBox->SetValue(isComplete);
+    label = new wxStaticText(this, wxID_ANY, title);
+    deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
 
-    wxString buttonLabel = title;
-    if (buttonLabel.length() > 29) {
-        buttonLabel.Truncate(29);
-        buttonLabel.Append("...");
-    }
+    taskSizer->Add(checkBox, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    taskSizer->Add(label, 1, wxEXPAND | wxALL, 5);
 
-    auto * taskButton = new wxButton(this, TASK_BUTTON, buttonLabel, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-    taskButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
-    taskButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonBackground);
-    
-    auto * deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
-    deleteButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonDelete);
-    deleteButton->SetForegroundColour(wxColour(255,255,255));
-    deleteButton->Bind(wxEVT_BUTTON, &TaskPanel::OnTaskEvent, this);
-    deleteButton->Fit();
+    taskSizer->Add(deleteButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-    auto * sizer = new wxBoxSizer(wxHORIZONTAL);
-    sizer->Add(checkBox, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-    sizer->Add(taskButton, 1, wxEXPAND | wxALL, 5);
-    sizer->Add(deleteButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-    this->SetSizer(sizer);
+    this->SetSizer(taskSizer);
+
+    label->Bind(wxEVT_LEFT_UP, &TaskPanel::OnPanelClick, this);
+    checkBox->Bind(wxEVT_CHECKBOX, &TaskPanel::OnCheckBox, this);
+    deleteButton->Bind(wxEVT_BUTTON, &TaskPanel::OnCloseClicked, this);
 }
+
+
+int TaskPanel::getTaskIndex() const {
+    return this->taskIndex;
+}
+
 
 bool TaskPanel::isChecked() {
-    return this->checkBox->IsChecked();
+    return checkBox->GetValue();
 }
 
-void TaskPanel::OnTaskEvent(wxCommandEvent &event) {
+
+void TaskPanel::OnPanelClick(wxMouseEvent &event) {
     event.SetEventObject(this);
-    wxPostEvent(GetParent(), event);
+    wxPostEvent(GetGrandParent(), event);
 }
 
-void TaskPanel::checkTask() {
-    this->checkBox->SetValue(true);
+void TaskPanel::OnCheckBox(wxCommandEvent &event) {
+    // internalTask->SetCompleted(checkBox->GetValue());
+    event.SetEventObject(this);
+    wxPostEvent(GetGrandParent(), event);
 }
 
-wxString TaskPanel::getTaskTitle() const {
-    return taskTitle;
-}
-
-wxString TaskPanel::getTaskDescription() const {
-    return taskDescription;
-}
-
-void TaskPanel::setTaskTitle(const wxString &task_title) {
-    auto sizer = this->GetSizer();
-    wxSizerItem* item = sizer->GetItem(1);
-    auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
-    if (taskBtn) {
-        auto btnLabel = task_title;
-        if (btnLabel.length() > 29) {
-            btnLabel.Truncate(29);
-            btnLabel.Append("...");
-        }
-        taskBtn->SetLabel(btnLabel);
-
-    }
-    this->taskTitle = task_title;
-}
-
-void TaskPanel::setTaskDescription(const wxString &task_description) {
-    taskDescription = task_description;
-}
-
-void TaskPanel::setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const {
-    auto sizer = this->GetSizer();
-    wxSizerItem* item = sizer->GetItem(1);
-    if (item) {
-        auto taskBtn = dynamic_cast<wxButton *>(item->GetWindow());
-        if (taskBtn) {
-            taskBtn->SetBackgroundColour(bgCl);
-            taskBtn->SetForegroundColour(fgCl);
-        }
-    }
+void TaskPanel::OnCloseClicked(wxCommandEvent &event) {
+    event.SetEventObject(this);
+    wxPostEvent(GetGrandParent(), event);
 }

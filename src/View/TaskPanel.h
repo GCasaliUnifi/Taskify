@@ -5,34 +5,33 @@
 #include <wx/checkbox.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
 
+#include "../Model/Task.h"
 
 enum BUTTON_IDs {
-    TASK_BUTTON = wxID_HIGHEST + 1,
+    TASK_PANEL = wxID_HIGHEST + 1,
     DELETE_BUTTON,
-    ADD_TASK,
     MODIFY_TASK
 };
 
 class TaskPanel : public wxPanel {
 public:
-    TaskPanel(wxWindow *parent, const wxString &title, const wxString &description, wxWindowID id = wxID_ANY, const wxPoint &pos = wxDefaultPosition,
-              const wxSize &size = wxDefaultSize);
+    TaskPanel(wxWindow* parent, const int taskIndex, bool isComplete, const wxString title);
 
+    int getTaskIndex() const;
     bool isChecked();
-    void checkTask();
-    wxString getTaskTitle() const;
-    wxString getTaskDescription() const;
-    void setTaskTitle(const wxString &task_title);
-    void setTaskDescription(const wxString &task_description);
-    void setTaskColour(const wxColour &bgCl, const wxColour &fgCl) const;
 
 private:
-    void OnTaskEvent(wxCommandEvent& event);
+    void OnPanelClick(wxMouseEvent& event);
+    void OnCheckBox(wxCommandEvent& event);
+    void OnCloseClicked(wxCommandEvent& event);
 
-    wxString taskTitle;
-    wxString taskDescription;
+    int taskIndex;
     wxCheckBox * checkBox;
+    wxStaticText* label;
+    wxPanel * kek;
+    wxButton* deleteButton;
 };
 
 

@@ -1,7 +1,3 @@
-//
-// Created by giacomo on 26/09/24.
-//
-
 #ifndef XMLPARSER_H
 #define XMLPARSER_H
 
@@ -9,22 +5,28 @@
 #include <utility>
 #include <wx/xml/xml.h>
 
+#include "Task.h"
 
 class XMLParser {
 public:
     XMLParser() = default;
     explicit XMLParser(const wxString& fileName);
-    bool openFile(const wxString& fileName);
+
+    void addTask(const std::string& title, const std::string& descr);
+    void clearTasks();
+    Task* getTaskByIndex(const int index) const;
+
+    bool loadFromFile(const std::string& filePath);
+    bool saveToFile(const std::string& filePath);
+
     void parseXML();
     void serializeXML();
-    bool saveToFile(const wxString& fileName) const;
-    void addToTaskList(const std::tuple<std::string, std::string, bool>& newTask);
-    std::vector<std::tuple<std::string, std::string, bool>> getTaskList() const;
-    void setTaskList(const std::vector<std::tuple<std::string, std::string, bool>> &task_list);
+
+    const std::vector<std::unique_ptr<Task>>& GetTasks() const;
 
 private:
     wxXmlDocument tasksFile;
-    std::vector<std::tuple<std::string, std::string, bool>> taskList;
+    std::vector<std::unique_ptr<Task>> taskList;
 };
 
 #endif //XMLPARSER_H
