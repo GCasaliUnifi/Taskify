@@ -36,7 +36,7 @@ public:
 
     void DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList);
     void ShowSelectedDetails(int index, const std::string &title, const std::string &descr);
-    void setNewPath(const std::string &newPath);
+    void SetNewPath(const std::string &newPath);
     void ResetPanelColours();
     void ResetFrame();
 private:

@@ -28,7 +28,7 @@ void Controller::OnMenuNew(wxCommandEvent &event) {
 
     model->clearTasks();
     view->ResetFrame();
-
+    isFileOpen = false;
 }
 
 void Controller::OnMenuSaveAs(wxCommandEvent &event) {
@@ -39,14 +39,14 @@ void Controller::OnMenuSaveAs(wxCommandEvent &event) {
     }
 
     wxFileDialog saveFileDialog(view, _("Salva XML file"), "", "",
-                                    "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                                "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (saveFileDialog.ShowModal() == wxID_OK) {
         std::string newPath = saveFileDialog.GetPath().ToStdString();
 
         currentFilePath = newPath;
         model->saveToFile(currentFilePath);
-        view->setNewPath(newPath);
+        view->SetNewPath(newPath);
 
         this->hasFileBeenModified = false;
         this->isFileOpen = true;
@@ -183,13 +183,9 @@ void Controller::OnAddTask(wxCommandEvent &event) {
     if (addTaskDialog.ShowModal() == wxID_YES) {
         if (!titleCtrl->IsEmpty()) {
             model->addTask(titleCtrl->GetValue().ToStdString(), descrCtrl->GetValue().ToStdString());
-
-            if (!this->hasFileBeenModified) {
-                std::cout << "modified: " << this->hasFileBeenModified << std::endl;
-                this->hasFileBeenModified = true;
-                UpdateWindowTitle();
-                view->DisplayTasks(model->GetTasks());
-            }
+            hasFileBeenModified = true;
+            UpdateWindowTitle();
+            view->DisplayTasks(model->GetTasks());
         } else {
             wxLogMessage("Impossibile aggiungere task senza titolo!");
         }
@@ -198,51 +194,44 @@ void Controller::OnAddTask(wxCommandEvent &event) {
 
 
 void Controller::OnModifySelectedTask(wxCommandEvent &event) {
-    // case MODIFY_TASK: {
-    //         const wxString oldTitle = selectedTask->getTaskTitle();
-    //         const wxString oldDescr = selectedTask->getTaskDescription();
-    //
-    //         auto modTaskDialog = wxDialog(this, wxID_ANY, wxT("Modifica Task"));
-    //         auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
-    //
-    //         auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuovo titolo"));
-    //         auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuova descrizione"));
-    //
-    //         auto titleCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
-    //                                         wxSize(400, -1));
-    //         titleCtrl->SetHint(oldTitle);
-    //         dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
-    //
-    //         auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, oldDescr, wxDefaultPosition, wxSize(400, -1),
-    //                                         wxTE_MULTILINE);
-    //         dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
-    //
-    //         auto buttonSizer = modTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
-    //
-    //         dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
-    //         dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
-    //         dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
-    //
-    //         modTaskDialog.SetSizerAndFit(dialogMainSizer);
-    //         modTaskDialog.Layout();
-    //
-    //         if (modTaskDialog.ShowModal() == wxID_YES) {
-    //             if (!titleCtrl->IsEmpty()) {
-    //                 selectedTask->setTaskTitle(titleCtrl->GetValue());
-    //                 this->titleBox->SetValue(titleCtrl->GetValue());
-    //             }
-    //
-    //             selectedTask->setTaskDescription(descrCtrl->GetValue());
-    //             this->descriptionBox->SetValue(descrCtrl->GetValue());
-    //
-    //             if (!this->hasFileBeenModified) {
-    //                 this->hasFileBeenModified = true;
-    //                 SetTitle("* " + GetTitle());
-    //             }
-    //         }
-    //
-    //         break;
-    //     }
+    const std::string oldTitle = model->getTaskByIndex(selectedTaskIndex)->GetTitle();
+    const std::string oldDescr = model->getTaskByIndex(selectedTaskIndex)->GetDescription();
+
+    auto modTaskDialog = wxDialog(view, wxID_ANY, wxT("Modifica Task"));
+    auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
+
+    auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuovo titolo"));
+    auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuova descrizione"));
+
+    auto titleCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                                    wxSize(400, -1));
+    titleCtrl->SetHint(oldTitle);
+    dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
+
+    auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, oldDescr, wxDefaultPosition, wxSize(400, -1),
+                                    wxTE_MULTILINE);
+    dialogDescrSizer->Add(descrCtrl, 0, wxEXPAND | wxALL, 5);
+
+    auto buttonSizer = modTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
+
+    dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
+    dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
+    dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
+
+    modTaskDialog.SetSizerAndFit(dialogMainSizer);
+    modTaskDialog.Layout();
+
+    if (modTaskDialog.ShowModal() == wxID_YES) {
+        if (!titleCtrl->IsEmpty()) {
+            model->getTaskByIndex(selectedTaskIndex)->SetTitle(titleCtrl->GetValue().ToStdString());
+        }
+
+        model->getTaskByIndex(selectedTaskIndex)->SetDescription(descrCtrl->GetValue().ToStdString());
+        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(),
+                                  model->getTaskByIndex(selectedTaskIndex)->GetDescription());
+        hasFileBeenModified = true;
+        UpdateWindowTitle();
+    }
 }
 
 
@@ -251,7 +240,8 @@ void Controller::OnTaskClick(wxMouseEvent &event) {
     if (panel) {
         this->selectedTaskIndex = panel->getTaskIndex();
         view->ResetPanelColours();
-        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(), model->getTaskByIndex(selectedTaskIndex)->GetDescription());
+        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(),
+                                  model->getTaskByIndex(selectedTaskIndex)->GetDescription());
     }
 
     event.Skip();
@@ -276,8 +266,8 @@ void Controller::OnDeleteTask(wxCommandEvent &event) {
             model->removeTask(panel->getTaskIndex());
             view->DisplayTasks(model->GetTasks());
             hasFileBeenModified = true;
+            UpdateWindowTitle();
         }
-
     }
 }
 

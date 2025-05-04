@@ -120,7 +120,7 @@ void MainFrame::ShowSelectedDetails(int index, const std::string &title, const s
 
 }
 
-void MainFrame::setNewPath(const std::string &newPath) {
+void MainFrame::SetNewPath(const std::string &newPath) {
     this->filePicker->SetPath(newPath);
 }
 
