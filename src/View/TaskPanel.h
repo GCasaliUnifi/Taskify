@@ -17,7 +17,7 @@ enum BUTTON_IDs {
 
 class TaskPanel : public wxPanel {
 public:
-    TaskPanel(wxWindow* parent, const int taskIndex, bool isComplete, const wxString title);
+    TaskPanel(wxWindow* parent, int taskIndex, bool isComplete, const wxString &title);
 
     int getTaskIndex() const;
     bool isChecked();
@@ -30,7 +30,6 @@ private:
     int taskIndex;
     wxCheckBox * checkBox;
     wxStaticText* label;
-    wxPanel * kek;
     wxButton* deleteButton;
 };
 

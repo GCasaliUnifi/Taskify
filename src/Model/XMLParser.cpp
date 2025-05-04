@@ -8,12 +8,20 @@ void XMLParser::addTask(const std::string& title, const std::string& descr) {
     taskList.emplace_back(std::make_unique<Task>(title,descr));
 }
 
+void XMLParser::removeTask(int index) {
+    this->taskList.erase(taskList.begin() + index);
+}
+
 void XMLParser::clearTasks() {
     this->taskList.clear();
 }
 
 Task* XMLParser::getTaskByIndex(const int index) const {
     return this->taskList[index].get();
+}
+
+void XMLParser::setTaskStatus(bool isCompleted, int index) {
+    this->taskList[index].get()->SetCompleted(isCompleted);
 }
 
 
@@ -67,36 +75,40 @@ void XMLParser::parseXML() {
     delete child;
 }
 
-/* void XMLParser::serializeXML() {
+void XMLParser::serializeXML() {
     auto root = new wxXmlNode(nullptr, wxXML_ELEMENT_NODE, "tasklist");
     this->tasksFile.SetRoot(root);
 
-    // Structured binding disponibile da C++17
-    for (const auto &[fst, snd, completed]: oldTaskList) {
+    for (int i = 0; i < taskList.size(); ++i) {
         // Radice di ogni task "<task completed="true/false"></task>"
         auto taskNode = new wxXmlNode(wxXML_ELEMENT_NODE, "task");
-        taskNode->AddAttribute("completed", completed ? "true" : "false");
+        taskNode->AddAttribute("completed", taskList[i].get()->IsCompleted() ? "true" : "false");
 
         // <title></title>
         auto taskTitleNode = new wxXmlNode(wxXML_ELEMENT_NODE, "title");
         taskNode->AddChild(taskTitleNode);
 
         // Testo dentro bracket title
-        auto taskTitleText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(fst.c_str(), wxConvUTF8));
+        auto taskTitleText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(taskList[i].get()->GetTitle()));
         taskTitleNode->AddChild(taskTitleText);
 
         // Analogo per la desc
         auto taskDescNode = new wxXmlNode(wxXML_ELEMENT_NODE, "desc");
         taskNode->AddChild(taskDescNode);
 
-        auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(snd.c_str(), wxConvUTF8));
+        auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(taskList[i].get()->GetDescription()));
         taskDescNode->AddChild(taskDescText);
 
         root->AddChild(taskNode);
     }
-} */
+}
 
 bool XMLParser::saveToFile(const std::string &filePath) {
+
+    serializeXML();
+    if (tasksFile.Save(filePath)) {
+        return true;
+    }
 
     return false;
 }

@@ -13,8 +13,11 @@ public:
     explicit XMLParser(const wxString& fileName);
 
     void addTask(const std::string& title, const std::string& descr);
+    void removeTask(int index);
     void clearTasks();
     Task* getTaskByIndex(const int index) const;
+
+    void setTaskStatus(bool isCompleted, int index);
 
     bool loadFromFile(const std::string& filePath);
     bool saveToFile(const std::string& filePath);

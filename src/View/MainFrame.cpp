@@ -90,8 +90,11 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     this->SetMinSize(wxSize(600, 400));
 }
 
-void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList) const {
+void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList) {
     this->tasksSizer->Clear(true);
+    this->titleBox->Clear();
+    this->descriptionBox->Clear();
+
     for (int i = 0; i < taskList.size(); ++i) {
         std::string cutTitle = taskList[i]->GetTitle();
         if (cutTitle.length() > 40)
@@ -101,9 +104,30 @@ void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList)
         tasksSizer->Add(tp, 0, wxEXPAND | wxALL, 5);
     }
 
+    ResetPanelColours();
+
     scrolledWindow->FitInside();
     scrolledWindow->Layout();
 
+}
+
+void MainFrame::ShowSelectedDetails(int index, const std::string &title, const std::string &descr) {
+    this->titleBox->SetValue(title);
+    this->descriptionBox->SetValue(descr);
+    this->tasksSizer->GetItem(index)->GetWindow()->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonSelected);
+
+    this->modifyTaskButton->Enable();
+
+}
+
+void MainFrame::setNewPath(const std::string &newPath) {
+    this->filePicker->SetPath(newPath);
+}
+
+void MainFrame::ResetPanelColours() {
+    for (int i = 0; i < tasksSizer->GetItemCount(); ++i) {
+        tasksSizer->GetItem(i)->GetWindow()->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonBackground);
+    }
 }
 
 void MainFrame::ResetFrame() {
@@ -111,6 +135,7 @@ void MainFrame::ResetFrame() {
     this->filePicker->SetPath("");
     this->titleBox->Clear();
     this->descriptionBox->Clear();
+    this->modifyTaskButton->Disable();
 
     this->SetTitle("Taskify");
 

@@ -34,8 +34,10 @@ class MainFrame : public wxFrame {
 public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
-    void DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList) const;
-
+    void DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList);
+    void ShowSelectedDetails(int index, const std::string &title, const std::string &descr);
+    void setNewPath(const std::string &newPath);
+    void ResetPanelColours();
     void ResetFrame();
 private:
     wxScrolledWindow* scrolledWindow;

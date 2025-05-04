@@ -26,41 +26,45 @@ void Controller::OnMenuNew(wxCommandEvent &event) {
     if (!PromptSaveIfNeeded())
         return;
 
-
     model->clearTasks();
     view->ResetFrame();
 
 }
 
 void Controller::OnMenuSaveAs(wxCommandEvent &event) {
-    // case SAVE_AS_MENU: {
-    //     if (this->unDoneTasks.empty() && this->doneTasks.empty()) {
-    //         int answer = wxMessageBox("Nessuna task, salvare comunque?", "Conferma", wxYES_NO | wxICON_ERROR, this);
-    //         if (answer != wxYES)
-    //             break;
-    //     }
-    //
-    //     wxFileDialog saveFileDialog(this, _("Save XML file"), "", "",
-    //                                 "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-    //
-    //     if (saveFileDialog.ShowModal() == wxID_OK) {
-    //         wxString newPath = saveFileDialog.GetPath();
-    //         this->filePicker->SetPath(newPath);
-    //         this->saveFile(newPath);
-    //         this->hasFileBeenModified = false;
-    //         SetTitle("Taskify");
-    //         this->isFileOpen = true;
-    //     }
-    //
-    //     break;
-    // }
+    if (model->GetTasks().empty()) {
+        int answer = wxMessageBox("Nessuna task, salvare comunque?", "Conferma", wxYES_NO | wxICON_ERROR, view);
+        if (answer != wxYES)
+            return;
+    }
+
+    wxFileDialog saveFileDialog(view, _("Salva XML file"), "", "",
+                                    "XML files (*.xml)|*.xml", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_OK) {
+        std::string newPath = saveFileDialog.GetPath().ToStdString();
+
+        currentFilePath = newPath;
+        model->saveToFile(currentFilePath);
+        view->setNewPath(newPath);
+
+        this->hasFileBeenModified = false;
+        this->isFileOpen = true;
+        UpdateWindowTitle();
+    }
 }
 
 
 void Controller::OnMenuSave(wxCommandEvent &event) {
-    if (model->saveToFile(currentFilePath)) {
-        hasFileBeenModified = false;
-        UpdateWindowTitle();
+    if (isFileOpen) {
+        if (model->saveToFile(currentFilePath)) {
+            hasFileBeenModified = false;
+            UpdateWindowTitle();
+        }
+    } else {
+        wxCommandEvent saveAsEvt(wxEVT_MENU);
+        saveAsEvt.SetId(wxID_SAVEAS);
+        wxPostEvent(view, saveAsEvt);
     }
 }
 
@@ -245,10 +249,10 @@ void Controller::OnModifySelectedTask(wxCommandEvent &event) {
 void Controller::OnTaskClick(wxMouseEvent &event) {
     auto *panel = dynamic_cast<TaskPanel *>(event.GetEventObject());
     if (panel) {
-        wxLogMessage("Clicked on: %s", model->getTaskByIndex(panel->getTaskIndex())->GetTitle());
+        this->selectedTaskIndex = panel->getTaskIndex();
+        view->ResetPanelColours();
+        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(), model->getTaskByIndex(selectedTaskIndex)->GetDescription());
     }
-
-    // TODO seleziona la task cliccata
 
     event.Skip();
 }
@@ -256,11 +260,9 @@ void Controller::OnTaskClick(wxMouseEvent &event) {
 void Controller::OnMarkTaskCompleted(wxCommandEvent &event) {
     auto *panel = dynamic_cast<TaskPanel *>(event.GetEventObject());
     if (panel) {
-        wxLogMessage("Marked: %s -> %d", model->getTaskByIndex(panel->getTaskIndex())->GetTitle(), panel->isChecked());
+        model->setTaskStatus(panel->isChecked(), panel->getTaskIndex());
         hasFileBeenModified = true;
         UpdateWindowTitle();
-    } else {
-        std::cout << "no cast checkbox" <<std::endl;
     }
 }
 
@@ -268,7 +270,14 @@ void Controller::OnMarkTaskCompleted(wxCommandEvent &event) {
 void Controller::OnDeleteTask(wxCommandEvent &event) {
     auto *panel = dynamic_cast<TaskPanel *>(event.GetEventObject());
     if (panel) {
-        wxLogMessage("Closed Task: %s", model->getTaskByIndex(panel->getTaskIndex())->GetTitle());
+        // wxLogMessage("Closed Task: %s", model->getTaskByIndex(panel->getTaskIndex())->GetTitle());
+        int answer = wxMessageBox("Eliminare task?", "Conferma", wxYES_NO | wxICON_ERROR, view);
+        if (answer == wxYES) {
+            model->removeTask(panel->getTaskIndex());
+            view->DisplayTasks(model->GetTasks());
+            hasFileBeenModified = true;
+        }
+
     }
 }
 

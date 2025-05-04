@@ -1,7 +1,7 @@
 #include "TaskPanel.h"
 #include "ThemeManager.h"
 
-TaskPanel::TaskPanel(wxWindow *parent, const int taskIndex, bool isComplete, const wxString title)
+TaskPanel::TaskPanel(wxWindow *parent, int taskIndex, bool isComplete, const wxString &title)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN), taskIndex(taskIndex)
 {
     auto * taskSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -10,6 +10,7 @@ TaskPanel::TaskPanel(wxWindow *parent, const int taskIndex, bool isComplete, con
     checkBox->SetValue(isComplete);
     label = new wxStaticText(this, wxID_ANY, title);
     deleteButton = new wxButton(this, DELETE_BUTTON, wxString::FromUTF8("X"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT | wxBORDER_NONE);
+    deleteButton->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonDelete);
 
     taskSizer->Add(checkBox, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
     taskSizer->Add(label, 1, wxEXPAND | wxALL, 5);

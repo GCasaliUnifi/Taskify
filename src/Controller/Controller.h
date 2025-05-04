@@ -37,6 +37,7 @@ private:
     bool isFileOpen = false;
     bool hasFileBeenModified = false;
     std::string currentFilePath;
+    int selectedTaskIndex;
 
 };
 
