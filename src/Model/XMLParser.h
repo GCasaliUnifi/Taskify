@@ -22,6 +22,9 @@ public:
     void setTaskStatus(bool isCompleted, int index);
     void setTaskDate(const wxDateTime& newDate, int index);
 
+    void orderTasksByStatus();
+    void orderTasksByDate();
+
     bool loadFromFile(const std::string& filePath);
     bool saveToFile(const std::string& filePath);
 

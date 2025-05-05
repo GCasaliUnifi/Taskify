@@ -17,7 +17,7 @@ private:
     void OnMenuSaveAs(wxCommandEvent& event);
     void OnMenuClose(wxCloseEvent& close);
     void OnMenuAbout(wxCommandEvent& event);
-    void OnMenuShowCompleted(wxCommandEvent& event);
+    void OnMenuOrderTasks(wxCommandEvent& event);
 
     void OnFilePicked(wxFileDirPickerEvent& event);
 

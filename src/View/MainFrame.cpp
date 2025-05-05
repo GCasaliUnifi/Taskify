@@ -23,8 +23,11 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     topMenuBar->Append(fileMenu, wxT("File"));
 
     auto *viewMenu = new wxMenu();
-    viewMenu->AppendCheckItem(SHOW_COMPLETED_MENU, "Mostra task completati");
-    viewMenu->GetMenuItems().front()->Check();
+    auto* subViewMenu = new wxMenu;
+    subViewMenu->AppendRadioItem(ORDER_BY_DATE, "data scadenza");
+    subViewMenu->AppendRadioItem(ORDER_BY_COMPLETION, "completamento");
+    viewMenu->AppendSubMenu(subViewMenu, "Ordina per ..");
+
     viewMenu->AppendSeparator();
 
     topMenuBar->Append(viewMenu, "View");
@@ -102,6 +105,7 @@ void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList)
     this->titleBox->Clear();
     this->descriptionBox->Clear();
     this->dateBox->Clear();
+    this->modifyTaskButton->Disable();
 
     for (int i = 0; i < taskList.size(); ++i) {
         std::string cutTitle = taskList[i]->GetTitle();

@@ -28,6 +28,18 @@ void XMLParser::setTaskDate(const wxDateTime &newDate, int index) {
     this->taskList[index].get()->SetDueDate(newDate.FormatISODate().ToStdString());
 }
 
+void XMLParser::orderTasksByStatus() {
+    std::sort(taskList.begin(), taskList.end(), [](const auto& a, const auto& b) {
+    return a->IsCompleted() < b->IsCompleted();
+    });
+}
+
+void XMLParser::orderTasksByDate() {
+    std::sort(taskList.begin(), taskList.end(), [](const auto& a, const auto& b) {
+        return a->GetDueDate() < b->GetDueDate();
+    });
+}
+
 
 bool XMLParser::loadFromFile(const std::string &filePath) {
     if (tasksFile.Load(filePath)) {

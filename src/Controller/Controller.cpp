@@ -10,8 +10,10 @@ void Controller::BindEvents() {
     view->Bind(wxEVT_MENU, &Controller::OnMenuSave, this, wxID_SAVE);
     view->Bind(wxEVT_MENU, &Controller::OnMenuSaveAs, this, wxID_SAVEAS);
     view->Bind(wxEVT_MENU, &Controller::OnMenuNew, this, NEW_FILE);
-    view->Bind(wxEVT_MENU, &Controller::OnMenuShowCompleted, this, SHOW_COMPLETED_MENU);
+    view->Bind(wxEVT_MENU, &Controller::OnMenuOrderTasks, this, ORDER_BY_COMPLETION);
+    view->Bind(wxEVT_MENU, &Controller::OnMenuOrderTasks, this, ORDER_BY_DATE);
     view->Bind(wxEVT_MENU, &Controller::OnMenuAbout, this, wxID_ABOUT);
+    view->Bind(wxEVT_CLOSE_WINDOW, &Controller::OnMenuClose, this);
 
     view->Bind(wxEVT_FILEPICKER_CHANGED, &Controller::OnFilePicked, this, FILE_PICKER);
 
@@ -123,6 +125,7 @@ void Controller::OnMenuOpen(wxCommandEvent &event) {
         isFileOpen = true;
         hasFileBeenModified = false;
         UpdateWindowTitle();
+        model->orderTasksByDate();
         view->DisplayTasks(model->GetTasks());
     } else {
         wxMessageBox("Errore nel caricamento dei file.", "Errore", wxICON_ERROR);
@@ -130,8 +133,10 @@ void Controller::OnMenuOpen(wxCommandEvent &event) {
 }
 
 void Controller::OnMenuClose(wxCloseEvent &close) {
-    if (!PromptSaveIfNeeded())
+    if (!PromptSaveIfNeeded()) {
+        close.Veto();
         return;
+    }
 
     close.Skip();
 }
@@ -311,6 +316,24 @@ void Controller::OnMenuAbout(wxCommandEvent &event) {
         wxOK | wxICON_INFORMATION);
 }
 
-void Controller::OnMenuShowCompleted(wxCommandEvent &event) {
-    // Aggiungi un bool alla funzione già esistente chiaamta DisplayTasks in MainFrame
+void Controller::OnMenuOrderTasks(wxCommandEvent &event) {
+    auto id = event.GetId();
+    switch (id) {
+        case ORDER_BY_COMPLETION: {
+            model->orderTasksByStatus();
+            view->DisplayTasks(model->GetTasks());
+
+            break;
+        }
+
+        case ORDER_BY_DATE: {
+            model->orderTasksByDate();
+            view->DisplayTasks(model->GetTasks());
+
+            break;
+        }
+
+        default:
+            break;
+    }
 }
