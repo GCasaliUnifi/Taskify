@@ -3,6 +3,9 @@
 MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size) : wxFrame(
     nullptr, wxID_ANY, title, pos, size) {
 
+    wxLocale locale;
+    locale.Init(wxLANGUAGE_ITALIAN);
+
     auto isSysDark = wxSystemSettings::GetAppearance().IsSystemDark();
     ThemeManager::GetInstance().SetDarkTheme(isSysDark);
 
@@ -65,6 +68,8 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     titleBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     titleBox->SetHint(wxT("Selezionare task..."));
 
+    auto *dateSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Scadenza (YYYY-MM-DD)"));
+    dateBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
 
     auto *descriptionSizer = new wxStaticBoxSizer(wxVERTICAL, this, wxT("Descrizione"));
     descriptionBox = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
@@ -76,9 +81,11 @@ MainFrame::MainFrame(const wxString &title, const wxPoint &pos, const wxSize &si
     modifyTaskButton->Disable();
 
     titleSizer->Add(titleBox, 0, wxEXPAND | wxALL, 8);
+    dateSizer->Add(dateBox, 0, wxEXPAND | wxALL, 8);
     descriptionSizer->Add(descriptionBox, 1, wxEXPAND | wxALL, 10);
 
     rightSizer->Add(titleSizer, 0, wxEXPAND | wxBOTTOM, 5);
+    rightSizer->Add(dateSizer, 0, wxEXPAND | wxBOTTOM, 5);
     rightSizer->Add(descriptionSizer, 1, wxEXPAND, 5);
     rightSizer->Add(modifyTaskButton, 0, wxEXPAND | wxTOP | wxBOTTOM, 5);
 
@@ -94,6 +101,7 @@ void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList)
     this->tasksSizer->Clear(true);
     this->titleBox->Clear();
     this->descriptionBox->Clear();
+    this->dateBox->Clear();
 
     for (int i = 0; i < taskList.size(); ++i) {
         std::string cutTitle = taskList[i]->GetTitle();
@@ -111,8 +119,9 @@ void MainFrame::DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList)
 
 }
 
-void MainFrame::ShowSelectedDetails(int index, const std::string &title, const std::string &descr) {
+void MainFrame::ShowSelectedDetails(int index, const std::string &title, const std::string &descr, const std::string& dueDate) {
     this->titleBox->SetValue(title);
+    this->dateBox->SetValue(dueDate);
     this->descriptionBox->SetValue(descr);
     this->tasksSizer->GetItem(index)->GetWindow()->SetBackgroundColour(ThemeManager::GetInstance().GetCurrentTheme().buttonSelected);
 
@@ -134,6 +143,7 @@ void MainFrame::ResetFrame() {
     this->tasksSizer->Clear(true);
     this->filePicker->SetPath("");
     this->titleBox->Clear();
+    this->dateBox->Clear();
     this->descriptionBox->Clear();
     this->modifyTaskButton->Disable();
 

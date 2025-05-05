@@ -1,10 +1,11 @@
 #include "Task.h"
 
-Task::Task(const std::string &title, const std::string &description, bool completed) {
+Task::Task(const std::string &title, const std::string &description, const std::string& dueDate, bool completed) {
 
     this->title = title;
     this->description = description;
     this->isCompleted = completed;
+    this->dueDate = dueDate;
 }
 
 const std::string & Task::GetTitle() const {
@@ -15,7 +16,7 @@ const std::string & Task::GetDescription() const {
     return this->description;
 }
 
-std::chrono::system_clock::time_point Task::GetDueDate() const {
+const std::string & Task::GetDueDate() const {
     return this->dueDate;
 }
 
@@ -35,6 +36,6 @@ void Task::SetCompleted(bool completed) {
     this->isCompleted = completed;
 }
 
-void Task::SetDueDate(const std::chrono::system_clock::time_point &date) {
+void Task::SetDueDate(const std::string &date) {
     this->dueDate = date;
 }

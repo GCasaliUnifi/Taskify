@@ -4,8 +4,8 @@ XMLParser::XMLParser(const wxString &fileName) {
     tasksFile.Load(fileName);
 }
 
-void XMLParser::addTask(const std::string& title, const std::string& descr) {
-    taskList.emplace_back(std::make_unique<Task>(title,descr));
+void XMLParser::addTask(const std::string& title, const std::string& descr, std::string& dueDate) {
+    taskList.emplace_back(std::make_unique<Task>(title,descr, dueDate));
 }
 
 void XMLParser::removeTask(int index) {
@@ -16,12 +16,16 @@ void XMLParser::clearTasks() {
     this->taskList.clear();
 }
 
-Task* XMLParser::getTaskByIndex(const int index) const {
+Task* XMLParser::getTaskByIndex(int index) const {
     return this->taskList[index].get();
 }
 
 void XMLParser::setTaskStatus(bool isCompleted, int index) {
     this->taskList[index].get()->SetCompleted(isCompleted);
+}
+
+void XMLParser::setTaskDate(const wxDateTime &newDate, int index) {
+    this->taskList[index].get()->SetDueDate(newDate.FormatISODate().ToStdString());
 }
 
 
@@ -49,6 +53,7 @@ void XMLParser::parseXML() {
         if (child->GetName() == "task") {
             std::string title;
             std::string description;
+            std::string dueDateStr;
             bool taskCompleted = false;
 
             auto attr = child->GetAttributes(); // Ritorna un puntatore al primo attributo del nodo
@@ -62,10 +67,13 @@ void XMLParser::parseXML() {
                     title = std::string(inside->GetNodeContent().ToUTF8().data());
                 } else if (inside->GetName() == "desc") {
                     description = std::string(inside->GetNodeContent().ToUTF8().data());
+                } else if (inside->GetName() == "datedue") {
+                    dueDateStr = std::string(inside->GetNodeContent().ToUTF8().data());
                 }
                 inside = inside->GetNext();
             }
-            auto tmp = new Task(title, description, taskCompleted);
+
+            auto tmp = new Task(title, description, dueDateStr, taskCompleted);
             this->taskList.push_back(std::make_unique<Task>(*tmp));
             delete inside;
         }
@@ -99,6 +107,13 @@ void XMLParser::serializeXML() {
         auto taskDescText = new wxXmlNode(wxXML_TEXT_NODE, "", wxString(taskList[i].get()->GetDescription()));
         taskDescNode->AddChild(taskDescText);
 
+        // data scadenza
+        auto taskDateNode = new wxXmlNode(wxXML_ELEMENT_NODE, "datedue");
+        taskNode->AddChild(taskDateNode);
+
+        auto taskDateText = new wxXmlNode(wxXML_TEXT_NODE, "", taskList[i].get()->GetDueDate()); // YYYY-MM-DD
+        taskDateNode->AddChild(taskDateText);
+
         root->AddChild(taskNode);
     }
 }
@@ -112,14 +127,6 @@ bool XMLParser::saveToFile(const std::string &filePath) {
 
     return false;
 }
-
-// bool XMLParser::saveToFile(const wxString &fileName) const {
-//     if (this->tasksFile.Save(fileName)) {
-//         return true;
-//     }
-//
-//     return false;
-// }
 
 const std::vector<std::unique_ptr<Task>>& XMLParser::GetTasks() const {
     return this->taskList;

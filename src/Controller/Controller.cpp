@@ -159,12 +159,16 @@ void Controller::OnAddTask(wxCommandEvent &event) {
     auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
 
     auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Titolo Task"));
+    auto dialogDateSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Scadenza Task"));
     auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &addTaskDialog, wxT("Descrizione Task"));
 
     auto titleCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
                                     wxSize(400, -1));
     titleCtrl->SetHint(wxT("Titolo..."));
     dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
+
+    auto dateCtrl = new wxDatePickerCtrl(&addTaskDialog, wxID_ANY, wxDateTime::Now());
+    dialogDateSizer->Add(dateCtrl, 0, wxEXPAND | wxALL, 5);
 
     auto descrCtrl = new wxTextCtrl(&addTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(400, -1),
                                     wxTE_MULTILINE);
@@ -174,6 +178,7 @@ void Controller::OnAddTask(wxCommandEvent &event) {
     auto buttonSizer = addTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
 
     dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
+    dialogMainSizer->Add(dialogDateSizer, 0, wxEXPAND | wxALL, 5);
     dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
     dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
 
@@ -182,7 +187,8 @@ void Controller::OnAddTask(wxCommandEvent &event) {
 
     if (addTaskDialog.ShowModal() == wxID_YES) {
         if (!titleCtrl->IsEmpty()) {
-            model->addTask(titleCtrl->GetValue().ToStdString(), descrCtrl->GetValue().ToStdString());
+            std::string date = dateCtrl->GetValue().FormatISODate().ToStdString();
+            model->addTask(titleCtrl->GetValue().ToStdString(), descrCtrl->GetValue().ToStdString(), date);
             hasFileBeenModified = true;
             UpdateWindowTitle();
             view->DisplayTasks(model->GetTasks());
@@ -195,18 +201,25 @@ void Controller::OnAddTask(wxCommandEvent &event) {
 
 void Controller::OnModifySelectedTask(wxCommandEvent &event) {
     const std::string oldTitle = model->getTaskByIndex(selectedTaskIndex)->GetTitle();
+    const std::string oldDate = model->getTaskByIndex(selectedTaskIndex)->GetDueDate();
     const std::string oldDescr = model->getTaskByIndex(selectedTaskIndex)->GetDescription();
 
     auto modTaskDialog = wxDialog(view, wxID_ANY, wxT("Modifica Task"));
     auto dialogMainSizer = new wxBoxSizer(wxVERTICAL);
 
     auto dialogTitleSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuovo titolo"));
+    auto dialogDateSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuova Scadenza"));
     auto dialogDescrSizer = new wxStaticBoxSizer(wxVERTICAL, &modTaskDialog, wxT("Nuova descrizione"));
 
     auto titleCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, wxEmptyString, wxDefaultPosition,
                                     wxSize(400, -1));
     titleCtrl->SetHint(oldTitle);
     dialogTitleSizer->Add(titleCtrl, 0, wxEXPAND | wxALL, 5);
+
+    wxDateTime dt;
+    dt.ParseISODate(oldDate);
+    auto dateCtrl = new wxDatePickerCtrl(&modTaskDialog, wxID_ANY, dt);
+    dialogDateSizer->Add(dateCtrl, 0, wxEXPAND | wxALL, 5);
 
     auto descrCtrl = new wxTextCtrl(&modTaskDialog, wxID_ANY, oldDescr, wxDefaultPosition, wxSize(400, -1),
                                     wxTE_MULTILINE);
@@ -215,6 +228,7 @@ void Controller::OnModifySelectedTask(wxCommandEvent &event) {
     auto buttonSizer = modTaskDialog.CreateSeparatedButtonSizer(wxYES | wxCANCEL);
 
     dialogMainSizer->Add(dialogTitleSizer, 0, wxEXPAND | wxALL, 5);
+    dialogMainSizer->Add(dialogDateSizer, 0, wxEXPAND | wxALL, 5);
     dialogMainSizer->Add(dialogDescrSizer, 1, wxEXPAND | wxALL, 5);
     dialogMainSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 5);
 
@@ -222,13 +236,16 @@ void Controller::OnModifySelectedTask(wxCommandEvent &event) {
     modTaskDialog.Layout();
 
     if (modTaskDialog.ShowModal() == wxID_YES) {
+        auto tsk = model->getTaskByIndex(selectedTaskIndex);
         if (!titleCtrl->IsEmpty()) {
-            model->getTaskByIndex(selectedTaskIndex)->SetTitle(titleCtrl->GetValue().ToStdString());
+            tsk->SetTitle(titleCtrl->GetValue().ToStdString());
         }
 
-        model->getTaskByIndex(selectedTaskIndex)->SetDescription(descrCtrl->GetValue().ToStdString());
-        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(),
-                                  model->getTaskByIndex(selectedTaskIndex)->GetDescription());
+        tsk->SetDescription(descrCtrl->GetValue().ToStdString());
+        tsk->SetDueDate(dateCtrl->GetValue().FormatISODate().ToStdString());
+
+        view->DisplayTasks(model->GetTasks());
+        view->ShowSelectedDetails(selectedTaskIndex, tsk->GetTitle(), tsk->GetDescription(), tsk->GetDueDate());
         hasFileBeenModified = true;
         UpdateWindowTitle();
     }
@@ -239,9 +256,9 @@ void Controller::OnTaskClick(wxMouseEvent &event) {
     auto *panel = dynamic_cast<TaskPanel *>(event.GetEventObject());
     if (panel) {
         this->selectedTaskIndex = panel->getTaskIndex();
+        auto tsk = model->getTaskByIndex(selectedTaskIndex);
         view->ResetPanelColours();
-        view->ShowSelectedDetails(selectedTaskIndex, model->getTaskByIndex(selectedTaskIndex)->GetTitle(),
-                                  model->getTaskByIndex(selectedTaskIndex)->GetDescription());
+        view->ShowSelectedDetails(selectedTaskIndex, tsk->GetTitle(), tsk->GetDescription(), tsk->GetDueDate());
     }
 
     event.Skip();

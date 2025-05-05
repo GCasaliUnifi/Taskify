@@ -17,6 +17,7 @@
 #include <wx/log.h>
 #include <wx/msgdlg.h>
 #include <wx/settings.h>
+#include <wx/datectrl.h>
 
 #include "TaskPanel.h"
 #include "../Model/XMLParser.h"
@@ -35,17 +36,19 @@ public:
     MainFrame(const wxString &title, const wxPoint &pos, const wxSize &size);
 
     void DisplayTasks(const std::vector<std::unique_ptr<Task>> &taskList);
-    void ShowSelectedDetails(int index, const std::string &title, const std::string &descr);
+    void ShowSelectedDetails(int index, const std::string &title, const std::string &descr, const std::string &dueDate);
     void SetNewPath(const std::string &newPath);
     void ResetPanelColours();
     void ResetFrame();
 private:
     wxScrolledWindow* scrolledWindow;
     wxBoxSizer * tasksSizer;
+    wxFilePickerCtrl* filePicker;
+
     wxTextCtrl* titleBox;
     wxTextCtrl* descriptionBox;
+    wxTextCtrl* dateBox;
     wxButton * modifyTaskButton;
-    wxFilePickerCtrl* filePicker;
 };
 
 
