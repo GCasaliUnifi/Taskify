@@ -119,3 +119,26 @@ TEST(XMLParserTest, SaveToFileWritesXMLSuccessfully) {
 
     std::filesystem::remove(tempFile);
 }
+
+
+TEST(XMLParserTest, SaveAndReloadTasksUsingSameParser) {
+    const std::string testFile = "test_output.xml";
+
+    XMLParser parser;
+
+    std::string date = "2025-05-05";
+    parser.addTask("Test Title", "Test Description", date);
+    ASSERT_TRUE(parser.saveToFile(testFile));
+
+    parser.clearTasks();
+    ASSERT_EQ(parser.GetTasks().size(), 0);
+
+    ASSERT_TRUE(parser.loadFromFile(testFile));
+
+    const auto& tasks = parser.GetTasks();
+    ASSERT_EQ(tasks.size(), 1);
+    EXPECT_EQ(tasks[0]->GetTitle(), "Test Title");
+    EXPECT_EQ(tasks[0]->GetDescription(), "Test Description");
+    EXPECT_EQ(tasks[0]->GetDueDate(), "2025-05-05");
+    EXPECT_FALSE(tasks[0]->IsCompleted());
+}
