@@ -14,7 +14,7 @@ public:
     XMLParser() = default;
     explicit XMLParser(const wxString& fileName);
 
-    void addTask(const std::string& title, const std::string& descr, std::string& dueDate);
+    void addTask(const std::string& title, const std::string& descr, const std::string &dueDate);
     void removeTask(int index);
     void clearTasks();
     Task* getTaskByIndex(int index) const;

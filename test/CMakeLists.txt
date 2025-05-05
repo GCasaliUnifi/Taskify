@@ -8,7 +8,8 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 find_package(wxWidgets REQUIRED)
 
 set(TEST_SOURCE_FILES tests.cpp
-        XMLParserTest.cpp)
+        XMLParserTest.cpp
+        TaskTest.cpp)
 
 add_executable(Taskify_tests ${TEST_SOURCE_FILES})
 

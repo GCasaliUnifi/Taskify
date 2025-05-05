@@ -5,7 +5,7 @@
 
 class Task {
 public:
-    Task();
+    Task() = default;
     Task(const std::string& title, const std::string& description, const std::string& dueDate, bool completed = false );
 
     const std::string& GetTitle() const;

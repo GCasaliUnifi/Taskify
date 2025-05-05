@@ -2,9 +2,11 @@
     <task completed="false">
         <title>Task 1</title>
         <desc>Descrizione 1</desc>
+        <datedue>2026-12-12</datedue>
     </task>
     <task completed="true">
         <title>Task 2</title>
         <desc>Descrizione 2</desc>
+        <datedue>2025-12-12</datedue>
     </task>
 </tasklist>

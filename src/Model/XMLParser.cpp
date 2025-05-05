@@ -4,7 +4,7 @@ XMLParser::XMLParser(const wxString &fileName) {
     tasksFile.Load(fileName);
 }
 
-void XMLParser::addTask(const std::string& title, const std::string& descr, std::string& dueDate) {
+void XMLParser::addTask(const std::string& title, const std::string& descr, const std::string &dueDate) {
     taskList.emplace_back(std::make_unique<Task>(title,descr, dueDate));
 }
 
