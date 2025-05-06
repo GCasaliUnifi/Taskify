@@ -5,7 +5,16 @@ XMLParser::XMLParser(const wxString &fileName) {
 }
 
 void XMLParser::addTask(const std::string& title, const std::string& descr, const std::string &dueDate) {
-    taskList.emplace_back(std::make_unique<Task>(title,descr, dueDate));
+    wxDateTime dt;
+    std::string correctDueDate;
+    if (!dt.ParseDate(dueDate)) { // Formato non valido allroa imposto data odierna
+        dt = wxDateTime::Now();
+        correctDueDate = dt.FormatISODate();
+    } else {
+        correctDueDate = dueDate;
+    }
+
+    taskList.emplace_back(std::make_unique<Task>(title,descr, correctDueDate));
 }
 
 void XMLParser::removeTask(int index) {
@@ -107,6 +116,12 @@ void XMLParser::parseXML() {
                     dueDateStr = std::string(inside->GetNodeContent().ToUTF8().data());
                 }
                 inside = inside->GetNext();
+            }
+
+            wxDateTime dt;
+            if (!dt.ParseDate(dueDateStr)) { // Formato non valido allroa imposto data odierna
+                dt = wxDateTime::Now();
+                dueDateStr = dt.FormatISODate();
             }
 
             auto tmp = new Task(title, description, dueDateStr, taskCompleted);
