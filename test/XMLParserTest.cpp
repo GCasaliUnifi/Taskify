@@ -87,7 +87,6 @@ TEST(XMLParserTest, GetTasksReturnsAllTasks) {
     EXPECT_EQ(tasks[0]->GetTitle(), "T1");
 }
 
-// ========== LOAD FROM FILE ==========
 TEST(XMLParserTest, LoadFromValidFileSucceeds) {
     XMLParser parser;
     bool loaded = parser.loadFromFile(validFile);
@@ -102,7 +101,6 @@ TEST(XMLParserTest, LoadFromInvalidFileFails) {
     EXPECT_EQ(parser.GetTasks().size(), 0); // Nessun task caricato
 }
 
-// ========== SAVE TO FILE ==========
 TEST(XMLParserTest, SaveToFileWritesXMLSuccessfully) {
     XMLParser parser;
     parser.addTask("T1", "Description", "2025-10-10");
@@ -121,7 +119,7 @@ TEST(XMLParserTest, SaveToFileWritesXMLSuccessfully) {
 }
 
 
-TEST(XMLParserTest, SaveAndReloadTasksUsingSameParser) {
+TEST(XMLParserTest, SaveAndReloadTasks) {
     const std::string testFile = "test_output.xml";
 
     XMLParser parser;
