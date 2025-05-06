@@ -5,6 +5,8 @@ Task::Task(const std::string &title, const std::string &description, const std::
     this->title = title;
     this->description = description;
     this->isCompleted = completed;
+
+
     this->dueDate = dueDate;
 }
 

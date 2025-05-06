@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <chrono>
+#include <regex>
 #include <wx/xml/xml.h>
 #include <wx/datetime.h>
 
@@ -18,6 +19,9 @@ public:
     void removeTask(int index);
     void clearTasks();
     Task* getTaskByIndex(int index) const;
+
+    std::vector<Task *> getCompletedTasks();
+    std::vector<Task *> findTasksByRegex(const std::regex& pattern);
 
     void setTaskStatus(bool isCompleted, int index);
     void setTaskDate(const wxDateTime& newDate, int index);

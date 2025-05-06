@@ -20,6 +20,30 @@ Task* XMLParser::getTaskByIndex(int index) const {
     return this->taskList[index].get();
 }
 
+std::vector<Task *> XMLParser::getCompletedTasks() {
+    std::vector<Task*> completedTasks;
+
+    for (const auto& task : taskList) {
+        if (task->IsCompleted()) {
+            completedTasks.push_back(task.get());
+        }
+    }
+
+    return completedTasks;
+}
+
+std::vector<Task *> XMLParser::findTasksByRegex(const std::regex &pattern) {
+    std::vector<Task*> matchingTasks;
+
+    for (const auto& task : taskList) {
+        if (std::regex_search(task->GetTitle(), pattern)) {
+            matchingTasks.push_back(task.get());
+        }
+    }
+
+    return matchingTasks;
+}
+
 void XMLParser::setTaskStatus(bool isCompleted, int index) {
     this->taskList[index].get()->SetCompleted(isCompleted);
 }
